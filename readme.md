@@ -1,2 +1,1 @@
-hallo
-jij daar
+# This is the repo for EventLink
