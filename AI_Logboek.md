@@ -865,3 +865,375 @@ Dat is exact hoe je in MongoDB een “join table” simuleert.
 ---
 
 Wil je dat ik dit meteen uitschrijf als **Mongoose-schema’s** (met referenties en populates) zodat je het in Node.js kan gebruiken? Dat zou je implementatie superduidelijk maken.
+
+
+## vraag
+
+in mijn mongodb heb ik een model event waar mensen dan een titel, datum, locatie en miss wat fotos van het event hoe zou ik dit opslaan en als ik dan een lijst van events zou weergeven kan ik dan met ajax bvb filteren op datum of locatie?
+
+## Antwoord
+
+Perfecte vraag — dat is exact het soort scenario waarvoor **MongoDB + Express + Pug + AJAX** ideaal is 👌
+Laten we stap voor stap bekijken hoe je dit goed opzet.
+
+---
+
+## 🧱 1. Het Mongoose model (`models/event.js`)
+
+Je kan een `Event` model maken zoals dit:
+
+```js
+const mongoose = require('mongoose');
+
+const eventSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  date: { type: Date, required: true },
+  location: { type: String, required: true },
+  photos: [String] // opslaan van bestandsnamen of URLs
+});
+
+module.exports = mongoose.model('Event', eventSchema);
+```
+
+👉
+
+* `photos` is hier een **array van strings** (bijv. bestandsnamen of cloud URLs).
+* Je kan ook een image upload library gebruiken (zoals `multer`) als je effectief foto’s wil uploaden.
+
+---
+
+## 🚀 2. Express routes (`routes/events.js`)
+
+We maken routes voor:
+
+* het weergeven van de Pug-pagina
+* het ophalen van events via AJAX (met filters)
+
+```js
+const express = require('express');
+const router = express.Router();
+const Event = require('../models/event');
+
+// Pug pagina renderen
+router.get('/', (req, res) => {
+  res.render('events'); // views/events.pug
+});
+
+// JSON endpoint voor AJAX
+router.get('/api', async (req, res) => {
+  const { date, location } = req.query;
+  const filter = {};
+
+  if (date) {
+    // bijv. alle events op die datum (of later)
+    filter.date = { $gte: new Date(date) };
+  }
+
+  if (location) {
+    // zoek op locatie (case-insensitive)
+    filter.location = { $regex: new RegExp(location, 'i') };
+  }
+
+  const events = await Event.find(filter).sort({ date: 1 });
+  res.json(events);
+});
+
+module.exports = router;
+```
+
+En in je `app.js`:
+
+```js
+const eventRoutes = require('./routes/events');
+app.use('/events', eventRoutes);
+```
+
+---
+
+## 🎨 3. De Pug view (`views/events.pug`)
+
+```pug
+extends layout
+
+block content
+  h1 Evenementen
+
+  form#filterForm
+    label Datum:
+    input(type="date" name="date" id="dateInput")
+    label Locatie:
+    input(type="text" name="location" id="locationInput")
+    button(type="button" onclick="loadEvents()") Filteren
+
+  ul#eventList
+```
+
+---
+
+## ⚙️ 4. AJAX code (`public/js/events.js`)
+
+```js
+async function loadEvents() {
+  const date = document.getElementById('dateInput').value;
+  const location = document.getElementById('locationInput').value;
+
+  const params = new URLSearchParams();
+  if (date) params.append('date', date);
+  if (location) params.append('location', location);
+
+  const res = await fetch(`/events/api?${params.toString()}`);
+  const data = await res.json();
+
+  const list = document.getElementById('eventList');
+  list.innerHTML = '';
+
+  if (data.length === 0) {
+    list.innerHTML = '<li>Geen evenementen gevonden.</li>';
+    return;
+  }
+
+  data.forEach(event => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <strong>${event.title}</strong><br>
+      📅 ${new Date(event.date).toLocaleDateString()}<br>
+      📍 ${event.location}
+    `;
+    list.appendChild(li);
+  });
+}
+
+// laad automatisch bij het openen
+window.addEventListener('DOMContentLoaded', loadEvents);
+```
+
+En in je `layout.pug`:
+
+```pug
+script(src="/js/events.js")
+```
+
+---
+
+## 📸 5. Foto’s opslaan (optioneel)
+
+Je hebt 2 mogelijkheden:
+
+### a) Simpel — enkel bestandsnamen opslaan
+
+Je uploadt foto’s via een formulier en gebruikt [`multer`](https://www.npmjs.com/package/multer):
+
+```js
+const multer = require('multer');
+const upload = multer({ dest: 'public/uploads/' });
+```
+
+Dan in je route:
+
+```js
+router.post('/add', upload.array('photos', 5), async (req, res) => {
+  const photos = req.files.map(f => '/uploads/' + f.filename);
+  await Event.create({
+    title: req.body.title,
+    date: req.body.date,
+    location: req.body.location,
+    photos
+  });
+  res.redirect('/events');
+});
+```
+
+In je Pug-bestand kun je ze dan tonen:
+
+```pug
+each photo in event.photos
+  img(src=photo, width="150")
+```
+
+---
+
+## ⚡ 6. Samengevat
+
+| Onderdeel           | Functie                             | Bestand                                         |
+| ------------------- | ----------------------------------- | ----------------------------------------------- |
+| `Event` model       | Structuur van data                  | `models/event.js`                               |
+| `/events/api` route | JSON data voor AJAX                 | `routes/events.js`                              |
+| `events.pug`        | HTML interface met filters          | `views/events.pug`                              |
+| `events.js`         | Fetch + DOM update                  | `public/js/events.js`                           |
+| CSS template        | Vrij te gebruiken via `/public/css` | `link(rel="stylesheet", href="/css/style.css")` |
+
+---
+
+Wil je dat ik dit uitbreid tot een **volledig werkende mini-app** (inclusief formulier om nieuwe events toe te voegen + uploaden van foto’s via multer)? Dat kan ik je tonen als compleet voorbeeld zodat je het rechtstreeks kunt draaien.
+
+
+
+## vraag
+
+Kan je de gebruikte dependencies even kort toelichten?
+
+## Antwoord
+
+Zeker! 👌 Hier is een **korte en duidelijke uitleg** van alle **dependencies** die jij wél nodig hebt voor je webtechnologieproject — en wat elke package doet:
+
+---
+
+## 📦 **Te installeren dependencies**
+
+### 1. **express**
+
+> Het hart van je Node.js webapplicatie.
+> Je gebruikt het om routes te maken, requests te verwerken en responses te versturen.
+
+➡️ Voorbeeld:
+
+```js
+import express from "express";
+const app = express();
+app.get("/", (req, res) => res.send("Hello world"));
+```
+
+---
+
+### 2. **mongoose**
+
+> Verbindt je Node-app met MongoDB en laat je makkelijk met modellen werken.
+> Je gebruikt het om users, events, enz. in de database op te slaan.
+
+➡️ Voorbeeld:
+
+```js
+import mongoose from "mongoose";
+await mongoose.connect(process.env.MONGO_URI);
+```
+
+---
+
+### 3. **pug**
+
+> Template engine die HTML-pagina’s genereert op basis van data uit Express.
+> Je gebruikt het om views (pagina’s) te maken voor je site.
+
+➡️ Voorbeeld:
+`index.pug`
+
+```pug
+h1 Welkom #{user.username}
+```
+
+---
+
+### 4. **bcrypt**
+
+> Wordt gebruikt om wachtwoorden te **hashen** en te **verifiëren**.
+> Zo worden wachtwoorden veilig opgeslagen in de database.
+
+➡️ Voorbeeld:
+
+```js
+const hash = await bcrypt.hash(password, 10);
+const match = await bcrypt.compare(input, hash);
+```
+
+---
+
+### 5. **connect-mongo**
+
+> Laat Express sessies opslaan in MongoDB.
+> Zorgt ervoor dat ingelogde gebruikers ingelogd blijven, ook als de server herstart.
+
+➡️ Gebruikt samen met `express-session`.
+
+---
+
+### 6. **express-session**
+
+> Zorgt voor **sessiebeheer** — om bijvoorbeeld te onthouden wie is ingelogd en met welke rol (user/admin).
+
+➡️ Voorbeeld:
+
+```js
+app.use(session({
+  secret: "geheime sleutel",
+  saveUninitialized: false,
+  resave: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI })
+}));
+```
+
+---
+
+### 7. **cookie-parser**
+
+> Maakt het makkelijk om **cookies te lezen en te zetten**.
+> Belangrijk voor je **GDPR- en cookiebeleid**.
+
+➡️ Voorbeeld:
+
+```js
+res.cookie("consent", true);
+console.log(req.cookies.consent);
+```
+
+---
+
+### 8. **dotenv**
+
+> Laat je veilig gevoelige data (zoals wachtwoord of database-URL) in een `.env`-bestand bewaren.
+> Voorkomt dat je die in je code hardcodeert.
+
+➡️ `.env`
+
+```
+MONGO_URI=mongodb+srv://...
+SESSION_SECRET=mysecret
+```
+
+---
+
+### 9. **method-override**
+
+> Laat je `PUT` en `DELETE`-verzoeken uitvoeren via HTML-formulieren (die normaal enkel `GET` of `POST` ondersteunen).
+> Handig voor updates of deletes in de database.
+
+➡️ Voorbeeld:
+
+```js
+app.use(methodOverride('_method'));
+```
+
+En in je form:
+
+```html
+<form method="POST" action="/user/123?_method=DELETE">
+```
+
+---
+
+## 🧩 Optioneel
+
+### **jsonwebtoken (JWT)**
+
+Niet nodig voor jouw project, omdat je met **sessies** werkt.
+Alleen gebruiken als je een API zou bouwen zonder sessies.
+
+---
+
+## 🧾 Samenvatting
+
+| Package         | Functie                 | Nodig |
+| --------------- | ----------------------- | ----- |
+| express         | Basis webserver         | ✅     |
+| mongoose        | MongoDB connectie       | ✅     |
+| pug             | Templates/views         | ✅     |
+| bcrypt          | Wachtwoordbeveiliging   | ✅     |
+| connect-mongo   | Sessies opslaan in DB   | ✅     |
+| express-session | Sessiebeheer            | ✅     |
+| cookie-parser   | Cookies & GDPR          | ✅     |
+| dotenv          | Configuratiebeheer      | ✅     |
+| method-override | PUT/DELETE via forms    | ✅     |
+| jsonwebtoken    | JWT tokens (niet nodig) | ❌     |
+
+---
+
+Wil je dat ik je een kort **`package.json` voorbeeld** geef waarin al deze dependencies mooi staan (zoals bij een echt project)? Dat maakt het makkelijker om te starten.
