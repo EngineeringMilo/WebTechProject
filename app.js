@@ -2,9 +2,15 @@ require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
+const connectDB = require('./server/config/db');
+
+
 //Setting up the express app
 const app = express();
 const PORT = 3000 || process.env.PORT;
+
+//Connecting to the MongoDB
+connectDB();
 
 //Adding the public (client side) folder
 app.use(express.static('public')); 

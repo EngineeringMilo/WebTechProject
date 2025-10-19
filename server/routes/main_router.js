@@ -6,10 +6,19 @@
 
 const express = require('express')
 const router = express.Router();
+const Event = require('../models/Event')
 
-//Home Route
-router.get('/', (req, res) => {
-    res.render('index');
+/*
+GET method of the home route
+*/
+router.get('', async (req, res) => {
+    
+    try {
+        const events = await Event.find();
+        res.render('index', { events });
+    } catch (error) {
+        console.log(error);   
+    }
 })
 
 //Cookie page Route
