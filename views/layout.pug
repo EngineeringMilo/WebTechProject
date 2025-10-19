@@ -1,0 +1,28 @@
+doctype html
+html
+  head
+    meta(charset = 'UTF-8')
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    meta(http-equiv="X-UA-Compatible" content="ie=edge")
+    title EventLink
+    //-link(rel='stylesheet', href='css/styles.css')
+    link(rel='stylesheet', href='css/Raddy_Tutorial_CSS_File.css')
+    script(src='js/script.js', type='text/javascript')
+  body
+    //- This is a search bar function we could add it here or maybe below the title in the main text 
+      include partials/search.pug
+    .container
+      //-
+        Here we are including the header file to always display
+        the same way on all the pages
+      include partials/header.pug
+
+      //- This is the main content (actual body) of the page that we are looking at 
+      main.main
+        block content
+      
+      //-
+        Here we are including the footer file to always display
+        the same way on all the pages
+      include partials/footer.pug
+

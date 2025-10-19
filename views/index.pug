@@ -1,0 +1,28 @@
+extends layout
+
+block content
+  .welcome_text 
+    h1.welcome_text__heading Hey welcome to EventLink!
+    p.welcome_text__body Here you can make, find and join events.
+
+  //- Here we could add an image like so:
+    img(src="/img/", alt="person looking out through window", class="hero-image", width="981", height="528")
+
+  section.events
+    h2.events__heading All the events
+    
+    ul.event-ul
+      li: a(href='#', target = 'blank', class = "")
+            span Event Title
+            span.event-list__description Description of event 1
+            span.event-list__date Event Date
+      li: a(href='#', target = 'blank', class = "")
+            span Event Title
+            span.event-list__description Description
+            span.event-list__date Event Date
+      li: a(href='#', target = 'blank', class = "")
+            span Event Title
+            span.event-list__description Description
+            span.event-list__date Event Date
+
+    a.pagination(href="#") &lt; View older posts
