@@ -18,7 +18,7 @@ router.get('', async (req, res) => {
         let page = req.query.page || 1;
         //const events = await Event.find();
         const events = await Event.aggregate([ { $sort: { createdAt: -1 } } ])
-        .skip(perPage * page - perPage)
+        .skip((page - 1) * perPage)
         .limit(perPage)
         .exec();
 
@@ -29,11 +29,28 @@ router.get('', async (req, res) => {
 
         res.render('index', { events,
                               current: page,
-                              nextPage: hasNextPage ? nextPage: null });
+                              nextPage: nextPage });
     } catch (error) {
         console.log(error);   
     }
 })
+
+
+router.get('/event', async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+      return res.status(404).send('Event niet gevonden');
+    }
+
+    res.render('event_page', { title: event.title, event });
+  } catch (error) {
+    console.error(error);
+    //res.status(500).send('Er ging iets mis bij het ophalen van het event.');
+  }
+});
+
 
 //Login page route
 router.get('/login', (req, res) => {
