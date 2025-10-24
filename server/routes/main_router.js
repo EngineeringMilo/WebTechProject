@@ -14,14 +14,53 @@ GET method of the home route
 router.get('', async (req, res) => {
     
     try {
-        const events = await Event.find();
-        res.render('index', { events });
+        //Logic to display a certain amount of pages on the homepage
+        let perPage = 2;
+        let page = req.query.page || 1;
+        const events = await Event.aggregate([ { $sort: { createdAt: -1 } } ])
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .exec();
+
+        const count = await Event.countDocuments();
+        const prevPage = parseInt(page) + 1;
+        const nextPage = parseInt(page) - 1;
+        const hasPrevPage = prevPage <= Math.ceil(count / perPage);
+        const hasNextPage = prevPage > 2;
+
+
+        res.render('index', { events,
+                              current: page,
+                              prevPage: hasPrevPage ? prevPage : null,
+                              nextPage: hasNextPage ? nextPage : null });
     } catch (error) {
         console.log(error);   
     }
 })
 
-//Cookie page Route
+
+router.get('/event', async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+      return res.status(404).send('Event niet gevonden');
+    }
+
+    res.render('event_page', { title: event.title, event });
+  } catch (error) {
+    console.error(error);
+    //res.status(500).send('Er ging iets mis bij het ophalen van het event.');
+  }
+});
+
+
+//Login page route
+router.get('/login', (req, res) => {
+    res.render('loginform');
+})
+
+//Cookie page route
 router.get('/cookie', (req, res) => {
     res.render('cookies-page');
 })

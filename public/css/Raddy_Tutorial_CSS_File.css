@@ -348,6 +348,15 @@ img {
   display: inline-block;
 }
 
+.nav-pagination {
+  display: flex;
+  justify-content: space-between;
+}
+
+.pagination-placeholder {
+  visibility: hidden;
+}
+
 .pagination:hover {
   color: var(--black);
 }
