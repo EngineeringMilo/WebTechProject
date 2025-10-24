@@ -5,7 +5,8 @@ const path = require('path');
 const connectDB = require('./server/config/db');
 
 const cookieParser=require('cookie-parser');
-
+const MongoStore = require('connect-mongo');
+const session = require('express-session');
 
 //Setting up the express app
 const app = express();
@@ -18,6 +19,9 @@ connectDB();
 app.use(express.static(path.join(__dirname, "public")));
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
+//Needed to parse the JSON from the forms
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 //Templating engine (pug)
 app.set('view engine', 'pug');
@@ -28,12 +32,21 @@ app.set('views', path.join(__dirname, 'views'));
 app.use('/', require('./server/routes/main_router'));
 app.use('/', require('./server/routes/user_router'));
 
+app.use(cookieParser());
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI
+  }),
+  cookie: {maxAge: new Date(Date.now() + (3600000))}
+}))
 
 app.listen(PORT, () => {
     console.log(`App is listening on port ${PORT}`);
 })
-
-app.use(cookieParser());
 
 
 app.get("/", (req, res) => {

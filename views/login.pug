@@ -2,9 +2,13 @@ extends userlayout
 
 block content
     h3 Sign in
-    form(action="/user", method="post")
-        label(for="username") Username:
-        input(type="text", name="username", placeholder = "Enter username")
+
+    if error 
+        p(style="color: red;") #{error}
+
+    form(action="/login", method="post")
+        label(for="username") Email:
+        input(type="email", name="email", placeholder = "Enter email")
 
         label(for="username") Password:
         input(type="password", name="password", placeholder = "Enter password")
