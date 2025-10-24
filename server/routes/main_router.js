@@ -4,9 +4,9 @@
 *
 */
 
-const express = require('express')
+const express = require('express');
 const router = express.Router();
-const Event = require('../models/Event')
+const Event = require('../models/Event');
 
 /*
 GET method of the home route
@@ -53,12 +53,6 @@ router.get('/event', async (req, res) => {
     //res.status(500).send('Er ging iets mis bij het ophalen van het event.');
   }
 });
-
-
-//Login page route
-router.get('/login', (req, res) => {
-    res.render('loginform');
-})
 
 //Cookie page route
 router.get('/cookie', (req, res) => {

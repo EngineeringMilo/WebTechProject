@@ -26,6 +26,7 @@ app.set('views', path.join(__dirname, 'views'));
 //Use the main.js file in server/routes to define the routes
 //This way we keep the app.js file better organised
 app.use('/', require('./server/routes/main_router'));
+app.use('/', require('./server/routes/user_router'));
 
 
 app.listen(PORT, () => {

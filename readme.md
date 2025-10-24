@@ -11,6 +11,7 @@
 - dotenv
 - express-session
 - method-override
+- vanilla-cookieconsent
 
 To install you run
 ```
@@ -39,7 +40,7 @@ There are 2 ways **If you do not have nodemon installed run:**
 node app.js
 ```
 
-If you do, you should run:
+If you do have it installed , you should run:
 
 ```
 npm run dev
@@ -64,4 +65,4 @@ So when you run
 npm run dev
 ```
 
-This will use the *dev* to run the app so it would be the same as running *node app.js*
+This will use the *dev* script run the app so it would be the same as running *nodemon app.js*
