@@ -23,5 +23,10 @@ block content
               span.event-list__date #{event.date.toDateString()}
     else
       p Er zijn nog geen events
-    if nextPage != null
-      a.pagination(href='/?page=' + nextPage) &lt; View older posts
+    .nav-pagination
+      if prevPage != null
+        a.pagination(href='/?page=' + prevPage) &lt; View older posts
+      else
+        span.pagination-placeholder
+      if nextPage != null
+        a.pagination(href='/?page=' + nextPage) View newer posts &gt;

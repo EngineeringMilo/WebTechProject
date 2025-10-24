@@ -1237,3 +1237,182 @@ Alleen gebruiken als je een API zou bouwen zonder sessies.
 ---
 
 Wil je dat ik je een kort **`package.json` voorbeeld** geef waarin al deze dependencies mooi staan (zoals bij een echt project)? Dat maakt het makkelijker om te starten.
+
+
+## vraag
+
+.pagination {
+  font-size: 1.3rem;
+  color: var(--gray);
+  text-decoration: none;
+  margin-top: 40px;
+  display: inline-block;
+}
+
+Dit is mijn pagination klasse in css a.pagination(href='/?page=' + nextPage) &lt; View older posts
+      a.pagination(href='/?page=' + nextPage) View newer posts &gt;
+
+Dit is mijn pug code kan je helpen om de ene rechts uit te lijnen en de andere links?
+
+## Antwoord 
+
+Zeker! 😊
+Je wilt dus dat in je **Pug**-template de link “View older posts” links uitgelijnd staat, en “View newer posts” rechts.
+
+Laten we dat netjes doen met een kleine aanpassing in je HTML-structuur én wat CSS.
+
+---
+
+### ✅ **Pug-code (aangepast)**
+
+Je kunt de twee links in een container plaatsen:
+
+```pug
+.nav-pagination
+  a.pagination(href='/?page=' + prevPage) &lt; View older posts
+  a.pagination(href='/?page=' + nextPage) View newer posts &gt;
+```
+
+---
+
+### ✅ **CSS**
+
+Gebruik **flexbox** om de twee links tegenover elkaar te zetten:
+
+```css
+.nav-pagination {
+  display: flex;
+  justify-content: space-between; /* verdeelt ze links/rechts */
+  margin-top: 40px;
+}
+
+.pagination {
+  font-size: 1.3rem;
+  color: var(--gray);
+  text-decoration: none;
+}
+```
+
+---
+
+### 🔍 Resultaat
+
+* “View older posts” komt **links** te staan.
+* “View newer posts” komt **rechts** te staan.
+* Beide behouden hun bestaande stijl.
+
+---
+
+💡 **Extra tip:**
+Als je liever de ene link naar rechts forceert met `margin-left: auto;`, kan dat ook:
+
+```pug
+.nav-pagination
+  a.pagination(href='/?page=' + prevPage) &lt; View older posts
+  a.pagination.pagination-right(href='/?page=' + nextPage) View newer posts &gt;
+```
+
+```css
+.pagination-right {
+  margin-left: auto;
+}
+```
+
+Maar de **flexbox-oplossing** is meestal het netst en schaalbaarst.
+
+Wil je ook dat ze responsief onder elkaar komen op kleine schermen?
+
+## vraag
+
+en nu heb ik als er geen vorige paginas meer zijn verdwijnt de view older posts knop en ik wil hebben dat view newer posts rechts blijft staan anders is dat niet consistent
+
+## Antwoord 
+
+Heel goed punt — dat is een veelvoorkomend probleem bij paginering 👍
+
+Wat er nu gebeurt: zodra “View older posts” wegvalt, verliest de `flexbox` zijn linkeritem en springt de rechterlink (newer posts) naar links.
+We willen dat hij **rechts blijft uitgelijnd**, ook als de andere link ontbreekt.
+
+---
+
+### ✅ **Oplossing 1 (beste manier): gebruik `justify-content: space-between` + lege placeholder**
+
+Je kunt in je **Pug** een lege placeholder opnemen waar anders de “older posts”-link zou staan.
+Zo behoudt de `flex` zijn structuur.
+
+#### 📄 Pug:
+
+```pug
+.nav-pagination
+  if prevPage
+    a.pagination(href='/?page=' + prevPage) &lt; View older posts
+  else
+    span.pagination-placeholder
+  if nextPage
+    a.pagination(href='/?page=' + nextPage) View newer posts &gt;
+```
+
+#### 🎨 CSS:
+
+```css
+.nav-pagination {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+}
+
+.pagination {
+  font-size: 1.3rem;
+  color: var(--gray);
+  text-decoration: none;
+}
+
+.pagination-placeholder {
+  visibility: hidden; /* neemt ruimte in maar is onzichtbaar */
+}
+```
+
+---
+
+### 🔍 Wat dit doet:
+
+* De placeholder (`span`) **houdt ruimte** vrij aan de linkerkant.
+* Daardoor blijft “View newer posts” **netjes rechts** uitgelijnd.
+* Als beide links er zijn → normale weergave.
+* Als één link verdwijnt → consistent uitgelijnde knop aan de andere kant.
+
+---
+
+### ✅ **Alternatief 2 (alleen newer posts rechts zonder placeholder)**
+
+Als je liever geen extra element hebt, kun je ook `margin-left: auto;` gebruiken, **maar** dan moet je “newer posts” in zijn eigen wrapper zetten:
+
+```pug
+.nav-pagination
+  if prevPage
+    a.pagination(href='/?page=' + prevPage) &lt; View older posts
+  if nextPage
+    a.pagination.pagination-right(href='/?page=' + nextPage) View newer posts &gt;
+```
+
+```css
+.nav-pagination {
+  display: flex;
+  margin-top: 40px;
+}
+
+.pagination-right {
+  margin-left: auto;
+}
+```
+
+👉 Hiermee blijft de rechterlink altijd rechts, ongeacht of de linker bestaat.
+De `margin-left: auto` duwt hem naar de rechterkant.
+
+---
+
+💡 **Aanrader:**
+Gebruik optie 2 als je simpel en elegant wilt blijven (minder HTML).
+Gebruik optie 1 als je precieze uitlijning of symmetrie wilt behouden tussen beide kanten.
+
+Wil je dat ik het ook laat zien met een **centrale paginanummering** in het midden (tussen de twee knoppen)?

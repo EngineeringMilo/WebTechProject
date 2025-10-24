@@ -23,12 +23,15 @@ router.get('', async (req, res) => {
         .exec();
 
         const count = await Event.countDocuments();
-        const nextPage = parseInt(page) + 1;
-        const hasNextPage = nextPage <= Math.ceil(count / perPage);
+        const prevPage = parseInt(page) + 1;
+        const nextPage = parseInt(page) - 1;
+        const hasPrevPage = prevPage <= Math.ceil(count / perPage);
+        const hasNextPage = prevPage > 2;
 
 
         res.render('index', { events,
                               current: page,
+                              prevPage: hasPrevPage ? prevPage : null,
                               nextPage: hasNextPage ? nextPage : null });
     } catch (error) {
         console.log(error);   
