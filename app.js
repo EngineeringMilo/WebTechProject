@@ -4,6 +4,8 @@ const express = require('express');
 const path = require('path');
 const connectDB = require('./server/config/db');
 
+const cookieParser=require('cookie-parser');
+
 
 //Setting up the express app
 const app = express();
@@ -13,7 +15,9 @@ const PORT = 3000 || process.env.PORT;
 connectDB();
 
 //Adding the public (client side) folder
-app.use(express.static('public')); 
+app.use(express.static(path.join(__dirname, "public")));
+app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
+
 
 //Templating engine (pug)
 app.set('view engine', 'pug');
@@ -27,3 +31,23 @@ app.use('/', require('./server/routes/main_router'));
 app.listen(PORT, () => {
     console.log(`App is listening on port ${PORT}`);
 })
+
+app.use(cookieParser());
+
+
+app.get("/", (req, res) => {
+  const consentStatus = req.cookies.cookieConsent;// pop-up disapear if accepted
+  res.render("index", { consentStatus });
+});
+
+app.post("/accept-cookies", (req, res) => {
+  res.cookie("cookieConsent", "accepted", { maxAge: 86400000,httpOnly:true, sameSite:"lax" });// save cookie named cookieconsent with value accepted
+  res.sendStatus(200);
+});
+
+app.post("/reject-cookies", (req, res) => {
+  res.cookie("cookieConsent", "rejected", { maxAge:  86400000,httpOnly:true, sameSite:"lax" });// cookies only sent from own site
+  res.redirect("/");//redirect user to homepage
+});
+
+// Route: Clear Cookie
