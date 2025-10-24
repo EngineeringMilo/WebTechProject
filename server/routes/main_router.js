@@ -14,9 +14,9 @@ GET method of the home route
 router.get('', async (req, res) => {
     
     try {
-        let perPage = 5;
+        //Logic to display a certain amount of pages on the homepage
+        let perPage = 2;
         let page = req.query.page || 1;
-        //const events = await Event.find();
         const events = await Event.aggregate([ { $sort: { createdAt: -1 } } ])
         .skip((page - 1) * perPage)
         .limit(perPage)
@@ -29,7 +29,7 @@ router.get('', async (req, res) => {
 
         res.render('index', { events,
                               current: page,
-                              nextPage: nextPage });
+                              nextPage: hasNextPage ? nextPage : null });
     } catch (error) {
         console.log(error);   
     }

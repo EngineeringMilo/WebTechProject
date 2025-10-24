@@ -15,6 +15,7 @@
 To install you run
 ```
 npm install express express-session connect-mongo mongoose bcrypt cookie-parser dotenv method-override pug
+vanilla-cookieconsent
 ```
 
 
