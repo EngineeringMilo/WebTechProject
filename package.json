@@ -27,7 +27,8 @@
     "express-session": "^1.18.2",
     "method-override": "^3.0.0",
     "mongoose": "^8.19.1",
-    "pug": "^3.0.3"
+    "pug": "^3.0.3",
+    "vanilla-cookieconsent": "^3.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
