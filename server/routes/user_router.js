@@ -11,7 +11,7 @@ router.use(cookieParser());
 const userLayout ='../views/userlayout'
 
 
-const authMiddleware = (req,res,next) => {
+const authMiddleware = async (req,res,next) => {
     const token = req.cookies.token;
 
     if(!token){
@@ -20,7 +20,8 @@ const authMiddleware = (req,res,next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        req.userID = decoded.userID;
+        const user = await User.findById(decoded.userID);
+        req.user = user;
         next();
     } catch (error) {
         return res.render('fourOone');
@@ -61,11 +62,21 @@ router.get('/register', async (req, res) => {
 
 router.get('/profile', authMiddleware, async (req, res) => {
     try {
-        res.render('profile');
+        const events = await Event.find({createdBy: req.user._id})
+        console.log(events);
+        res.render('profile', {user: req.user, events});
     } catch (error) {
         console.log(error);
     }
 
+})
+
+router.get('/createeveent', authMiddleware, async (req, res) => {
+    try {
+        res.render('event-creation')
+    } catch (error) {
+        console.log(error);
+    }
 })
 
 

@@ -1,4 +1,16 @@
 extends userlayout 
 
 block content 
-    h1 Profile
+    h1 Hey #{user.username}
+    p Dit is je email #{user.email}
+    if !events || events.length === 0
+        p Je hebt nog geen events.
+    else
+        ul
+        each event in events
+            li
+                h3= event.title
+                //p Beschrijving: #{event.description}
+                //p Locatie: #{event.location}
+                //p Datum: #{event.date.toLocaleDateString()}
+                //p Aangemaakt op: #{event.createdAt.toLocaleDateString()}
