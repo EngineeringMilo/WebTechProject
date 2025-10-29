@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 
 router.use(cookieParser());
 
-const userLayout ='../views/userlayout'
+const userLayout ='../views/userlayout';
 
 
 const authMiddleware = async (req,res,next) => {
@@ -19,7 +19,7 @@ const authMiddleware = async (req,res,next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findById(decoded.userID);
         req.user = user;
         next();
@@ -38,9 +38,9 @@ const authMiddleware = async (req,res,next) => {
 router.get('/login', async (req, res) => {
 
     try {
-        res.render('login', {layout: userLayout})
+        res.render('login');
     } catch (error) {
-        
+        console.log(error);
     }
 
 })
@@ -48,9 +48,9 @@ router.get('/login', async (req, res) => {
 router.get('/register', async (req, res) => {
 
     try {
-        res.render('register', {layout: userLayout})
+        res.render('register');
     } catch (error) {
-        
+        console.log(error);
     }
 
 })
@@ -62,8 +62,7 @@ router.get('/register', async (req, res) => {
 
 router.get('/profile', authMiddleware, async (req, res) => {
     try {
-        const events = await Event.find({createdBy: req.user._id})
-        console.log(events);
+        const events = await Event.find({createdBy: req.user._id});
         res.render('profile', {user: req.user, events});
     } catch (error) {
         console.log(error);
@@ -71,13 +70,112 @@ router.get('/profile', authMiddleware, async (req, res) => {
 
 })
 
-router.get('/createeveent', authMiddleware, async (req, res) => {
+/**
+ * 
+ * GET/
+ * Create a new event
+ * 
+ */
+
+router.get('/createevent', authMiddleware, async (req, res) => {
     try {
-        res.render('event-creation')
+        res.render('event-creation');
     } catch (error) {
         console.log(error);
     }
 })
+
+
+/**
+ * 
+ * POST/
+ * Create a new event
+ * 
+ */
+
+router.post('/createevent', authMiddleware, async (req, res) => {
+    try {
+        req.body
+        try {
+            const newEvent = new Event({
+                title: req.body.title,
+                description: req.body.description,
+                location: 'Gent, Belgium',
+                date: req.body.date,
+                createdBy: req.user._id
+            });
+
+            await Event.create(newEvent);
+        } catch (error) {
+            console.log(error);
+        }
+        res.redirect('/profile')
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+/**
+ * 
+ * GET/
+ * Update an existing event
+ * 
+ */
+
+router.get('/edit-event/:id', authMiddleware, async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        console.log(event);
+        res.render('event-edit', {
+            event
+        });
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+
+/**
+ * 
+ * PUT/
+ * Update an existing event
+ * 
+ */
+
+router.put('/edit-event/:id', authMiddleware, async (req, res) => {
+    try {
+        await Event.findByIdAndUpdate(req.params.id,{
+            title: req.body.title,
+            description: req.body.description
+        });
+        res.redirect(`/edit-event/${req.params.id}`);
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+/**
+ * 
+ * DELETE/
+ * Update an existing event
+ * 
+ */
+
+router.delete('/delete-event/:id', authMiddleware, async (req, res) => {
+    try {
+        
+        await Event.findByIdAndDelete(req.params.id);
+        res.redirect(`/profile`);
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+
 
 
 
@@ -93,7 +191,7 @@ router.post('/login', async (req,res) => {
     try {
         //login logic
         const {email, password} = req.body;
-        const user = await User.findOne({email})
+        const user = await User.findOne({email});
 
         if (!user){
             return res.status(401).render('login', { error: 'Invalid credentials' });
@@ -102,15 +200,29 @@ router.post('/login', async (req,res) => {
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid){
             return res.status(401).render('login', { error: 'Invalid credentials' });
-        }
+        };
 
-        const token = jwt.sign({ userID: user._id}, process.env.JWT_SECRET)
+        const token = jwt.sign({ userID: user._id}, process.env.JWT_SECRET);
         res.cookie('token', token, {httpOnly: true});
-        res.redirect('/profile')
+        res.redirect('/profile');
     } catch (error) {
-        
+        console.log(error);
     }
-})
+});
+
+
+
+/**
+ * GET
+ * User - Logout
+ */
+
+router.get('/logout', (req,res) => {
+    res.clearCookie('token');
+    res.redirect('/')
+});
+
+
 
 /**
  * POST
@@ -132,7 +244,7 @@ router.post('/register', async (req,res) => {
             res.status(500).json({message: 'Error on server'})
         }
     } catch (error) {
-        
+        console.log(error);
     }
 })
 

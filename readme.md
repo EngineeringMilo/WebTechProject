@@ -27,7 +27,7 @@ For development **nodemon** was used to run and test the app.
 so for that you run
 
 ```
-npm install --save-dev nodemon
+npm install nodemon --save-dev
 ```
 
 (the --save-dev is so that npm knows it should be saved in the dev folder and not used in devolpment.)

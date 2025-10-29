@@ -1,0 +1,23 @@
+extends userLayout
+
+block content 
+    a(href="/profile") &larr; Back
+    .admin-title
+        h2 View / edit event
+        form(action=`/delete-event/${event.id}?_method=DELETE`, method = "POST", )
+            input.btn-delete.btn(type="submit", value="Delete Event")
+
+
+  
+    form(action=`/edit-event/${event._id}?_method=PUT`, method="POST")
+        label(for="title") #[strong Title of your event]
+        input(type="text", placeholder="Event title", name="title", value=`${event.title}`)
+
+        
+
+        label(for="title") #[strong Description of your event]
+        textarea(name="description", placeholder="Update the description of your event" cols="50", rows="10") #{event.description}
+        
+        input(type="date", name="date")
+        
+        input.btn-submit(type="submit", value="Update event") 

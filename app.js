@@ -8,6 +8,8 @@ const cookieParser=require('cookie-parser');
 const MongoStore = require('connect-mongo');
 const session = require('express-session');
 
+const methodOverride = require('method-override');
+
 //Setting up the express app
 const app = express();
 const PORT = 3000 || process.env.PORT;
@@ -23,16 +25,13 @@ app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+
 //Templating engine (pug)
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
-//Use the main.js file in server/routes to define the routes
-//This way we keep the app.js file better organised
-app.use('/', require('./server/routes/main_router'));
-app.use('/', require('./server/routes/user_router'));
-
 app.use(cookieParser());
+app.use(methodOverride('_method'));
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -44,10 +43,27 @@ app.use(session({
   cookie: {maxAge: new Date(Date.now() + (3600000))}
 }))
 
+//Use the main.js file in server/routes to define the routes
+//This way we keep the app.js file better organised
+app.use('/', require('./server/routes/main_router'));
+app.use('/', require('./server/routes/user_router'));
+
 app.listen(PORT, () => {
     console.log(`App is listening on port ${PORT}`);
 })
 
+// When the user generates a 404 error this will handle it
+// It shows a four o four page
+/*
+app.use(function(req, res, next) {
+  res.status(404);
+
+  if (req.accepts('html')) {
+    res.render('fourOfour');
+    return;
+  }
+});
+*/
 
 app.get("/", (req, res) => {
   const consentStatus = req.cookies.cookieConsent;// pop-up disapear if accepted

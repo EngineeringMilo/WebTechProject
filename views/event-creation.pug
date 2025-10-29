@@ -1,0 +1,17 @@
+extends userLayout
+
+block content 
+    a(href="/profile") &larr; Back
+    .admin-title
+        h2 Add an event
+
+    form(action="/createevent", method="POST")
+        label(for="title") Title of your event
+        input(type="text", placeholder="Event title", name="title")
+
+        label(for="title") Description of your event
+        textarea(name="description", placeholder="Give a description of your event. This way people know what they should expect" cols="50", rows="10")
+        
+        input(type="date", name="date")
+        
+        input.btn-submit(type="submit", value="Add event") 
