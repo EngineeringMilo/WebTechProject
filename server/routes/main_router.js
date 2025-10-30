@@ -12,32 +12,47 @@ const Event = require('../models/Event');
 GET method of the home route
 */
 router.get('', async (req, res) => {
-    
-    try {
-        //Logic to display a certain amount of pages on the homepage
-        let perPage = 5;
-        let page = req.query.page || 1;
-        const events = await Event.aggregate([ { $sort: { createdAt: -1 } } ])
-        .skip((page - 1) * perPage)
-        .limit(perPage)
-        .exec();
-
-        const count = await Event.countDocuments();
-        const prevPage = parseInt(page) + 1;
-        const nextPage = parseInt(page) - 1;
-        const hasPrevPage = prevPage < Math.ceil(count / perPage);
-        const hasNextPage = prevPage > 2;
-
-
-        res.render('index', { events,
-                              current: page,
-                              count: count,
-                              prevPage: hasPrevPage ? prevPage : null,
-                              nextPage: hasNextPage ? nextPage : null });
-    } catch (error) {
-        console.log(error);   
+  
+  /**
+   *  This Portion is to fetch a joke from an external API
+   */
+  let joke;
+  try {
+    const response = await fetch("https://v2.jokeapi.dev/joke/Programming,Pun?blacklistFlags=nsfw,religious,political,racist,sexist,explicit&type=single");
+    if (!response.ok) {
+      throw new Error(`API returned status ${response.status}`);
     }
-})
+    const data = await response.json();
+    joke = data.joke;
+  } catch (error) {
+    console.log(error);
+  }
+  try {
+      //Logic to display a certain amount of pages on the homepage
+      let perPage = 5;
+      let page = req.query.page || 1;
+      const events = await Event.aggregate([ { $sort: { createdAt: -1 } } ])
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .exec();
+
+      const count = await Event.countDocuments();
+      const prevPage = parseInt(page) + 1;
+      const nextPage = parseInt(page) - 1;
+      const hasPrevPage = prevPage < Math.ceil(count / perPage);
+      const hasNextPage = prevPage > 2;
+
+
+      res.render('index', { events,
+                            current: page,
+                            count: count,
+                            joke: joke,
+                            prevPage: hasPrevPage ? prevPage : null,
+                            nextPage: hasNextPage ? nextPage : null });
+  } catch (error) {
+      console.log(error);   
+  }
+});
 
 
 router.get('/event/:id', async (req, res) => {
