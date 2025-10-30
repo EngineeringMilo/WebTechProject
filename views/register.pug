@@ -1,0 +1,16 @@
+extends layout
+
+block content
+    h3 Register
+    form(action="/register", method="post")
+        label(for="username") Username:
+        input(type="text", name="username", placeholder = "Enter username")
+
+        label(for="username") Email:
+        input(type="email", name="email", placeholder = "Enter email")
+
+        label(for="username") Password:
+        input(type="password", name="password", placeholder = "Enter password")
+
+        input.btn(type="submit", value="Register")
+        p or #[a(href="/login") sign in] instead

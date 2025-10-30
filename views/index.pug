@@ -9,7 +9,7 @@ block content
     img(src="/img/", alt="person looking out through window", class="hero-image", width="981", height="528")
 
   section.events
-    h2.events__heading All the events
+    h2.events__heading All the #{count} events
     
     if events.length
       ul.event-ul
@@ -17,12 +17,12 @@ block content
           li
             //-To do link this 'link' to the correct event so when a user clicks on it
               They are led to the event page
-            a(href='/event', class='')
+            a(href=`/event/${event._id}`, class='')
               span #{event.title}
               span.event-list__description #{event.description}
               span.event-list__date #{event.date.toDateString()}
     else
-      p Er zijn nog geen events
+      p No events yet. Make your very own on the #[a(href="/profile") Profile] page!
     .nav-pagination
       if prevPage != null
         a.pagination(href='/?page=' + prevPage) &lt; View older posts

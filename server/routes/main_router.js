@@ -4,9 +4,9 @@
 *
 */
 
-const express = require('express')
+const express = require('express');
 const router = express.Router();
-const Event = require('../models/Event')
+const Event = require('../models/Event');
 
 /*
 GET method of the home route
@@ -15,7 +15,7 @@ router.get('', async (req, res) => {
     
     try {
         //Logic to display a certain amount of pages on the homepage
-        let perPage = 2;
+        let perPage = 5;
         let page = req.query.page || 1;
         const events = await Event.aggregate([ { $sort: { createdAt: -1 } } ])
         .skip((page - 1) * perPage)
@@ -25,12 +25,13 @@ router.get('', async (req, res) => {
         const count = await Event.countDocuments();
         const prevPage = parseInt(page) + 1;
         const nextPage = parseInt(page) - 1;
-        const hasPrevPage = prevPage <= Math.ceil(count / perPage);
+        const hasPrevPage = prevPage < Math.ceil(count / perPage);
         const hasNextPage = prevPage > 2;
 
 
         res.render('index', { events,
                               current: page,
+                              count: count,
                               prevPage: hasPrevPage ? prevPage : null,
                               nextPage: hasNextPage ? nextPage : null });
     } catch (error) {
@@ -39,7 +40,7 @@ router.get('', async (req, res) => {
 })
 
 
-router.get('/event', async (req, res) => {
+router.get('/event/:id', async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
 
@@ -53,12 +54,6 @@ router.get('/event', async (req, res) => {
     //res.status(500).send('Er ging iets mis bij het ophalen van het event.');
   }
 });
-
-
-//Login page route
-router.get('/login', (req, res) => {
-    res.render('loginform');
-})
 
 //Cookie page route
 router.get('/cookie', (req, res) => {

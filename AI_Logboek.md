@@ -1789,3 +1789,71 @@ Here’s how you can change its color:
 This targets only the third button without affecting the other buttons.
 
 If you want, I can write a full snippet that customizes all three buttons individually for your popup. Do you want me to do that?
+
+
+## Vraag
+
+a(href='/event', class='')
+              span #{event.title}
+              span.event-list__description #{event.description}
+              span.event-list__date #{event.date.toDateString()}
+
+Ik wil dat ik ook bij pug dynamisch aan event zijn id kan zoals je dat zou doen in ejs ik heb een stukje code gevonden dat hetzelfde doet
+
+<a href="/post/<%= post._id %>">
+          <span><%= post.title %></span>
+          <span class="article-list__date"><%= post.createdAt.toDateString() %></span>
+        </a>
+
+Hoe kan ik dynamisch in pug die event._id meegeven in mijn link href?
+
+## Antwoord
+
+Goede vraag — ja, dat kan perfect in **Pug**, alleen werkt de interpolatie net iets anders dan in **EJS**.
+In **EJS** gebruik je `<%= ... %>`, maar in **Pug** gebruik je **stringinterpolatie met `#{}`** of **JS expressies binnen attributen**.
+
+Dus, om het equivalent van
+
+```ejs
+<a href="/post/<%= post._id %>">
+```
+
+te doen in **Pug**, kun je het zo schrijven:
+
+---
+
+### ✅ Optie 1: Stringinterpolatie in een attribuut
+
+```pug
+a(href=`/event/${event._id}`, class='')
+  span #{event.title}
+  span.event-list__description #{event.description}
+  span.event-list__date #{event.date.toDateString()}
+```
+
+---
+
+### ✅ Optie 2: Concatenatie (klassieke manier)
+
+```pug
+a(href='/event/' + event._id, class='')
+  span #{event.title}
+  span.event-list__description #{event.description}
+  span.event-list__date #{event.date.toDateString()}
+```
+
+Beide werken hetzelfde — de eerste (`template string` syntax met backticks `` ` ``) is moderner en overzichtelijker, vooral als je meerdere variabelen combineert.
+
+---
+
+### 💡 Tip
+
+Als je `event._id` soms undefined kan zijn, kun je het defensief doen:
+
+```pug
+a(href=event && event._id ? `/event/${event._id}` : '#')
+```
+
+---
+
+Wil je dat ik laat zien hoe je dit doet binnen een `each` loop (bijv. bij `each event in events`)?

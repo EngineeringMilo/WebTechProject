@@ -49,11 +49,24 @@ textarea {
   text-decoration: none;
   margin: 4px 2px; 
   cursor: pointer;
+  border-radius: 5px;
 }
 
 .btn-delete {
   padding: 10px 16px;
   background-color: var(--red);
+}
+
+.btn-submit {
+  background-color: var(--black);
+  border: none;
+  color: white; 
+  padding: 16px 32px;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
 }
 
 
@@ -359,4 +372,14 @@ img {
 
 .pagination:hover {
   color: var(--black);
+}
+
+input[type="date"]{
+    background-color: black;
+    padding: 10px;
+    color: #ffffff;
+    font-size: 18px;
+    border: none;
+    outline: none;
+    border-radius: 5px;
 }
