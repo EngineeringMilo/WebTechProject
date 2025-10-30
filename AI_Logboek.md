@@ -1971,3 +1971,815 @@ Je gebruikt **Pug**, dus ik geef je de juiste markup én de bijbehorende **CSS**
 ---
 
 Wil je dat ik er ook een **responsive versie** bijzet (bijvoorbeeld dat de knoppen onder de titel komen op mobiel)?
+
+## Vraag
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;600;700&display=swap');
+
+:root {
+  --black: #1c1c1c;
+  --gray: #7E7E7E;
+  --gray-light: #E4E4E4;
+  --red: #b30000;
+  --font-size-base: 1rem;
+  --font-size-md: clamp(1.25rem, 0.61vw + 1.1rem, 1.58rem);
+  --font-size-lg: clamp(1.56rem, 1vw + 1.31rem, 2.11rem);
+  --font-size-xl: clamp(2.44rem, 2.38vw + 1.85rem, 3.75rem);
+  --border-radius: 10px;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  color: var(--black);
+  font-size: var(--font-size-base);
+  background-color: #FAF5EE;
+  /*background-image: url("/img/img-noise-361x370.png"); */
+  margin: 0;
+}
+
+a { color: var(--black); }
+h1 { font-size: var(--font-size-xl); }
+h2 { font-size: var(--font-size-lg); }
+h3 { font-size: var(--font-size-md); }
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+select,
+textarea {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.7rem 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.btn {
+  background-color: var(--black);
+  border: none;
+  color: white; 
+  padding: 16px 32px;
+  text-decoration: none;
+  margin: 4px 2px; 
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.btn-delete {
+  padding: 10px 16px;
+  background-color: var(--red);
+}
+
+.btn-submit {
+  background-color: var(--black);
+  border: none;
+  color: white; 
+  padding: 16px 32px;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+}
+
+
+img {
+  width: 100%;
+  height: auto;
+}
+
+/* Layout */
+.container {
+  max-width: 982px;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+
+.main {
+  padding: 20px 0;
+}
+
+/* Hero Section */
+.hero-image {
+  max-height: 528px;
+  filter: drop-shadow(0px 44px 34px rgba(0, 0, 0, 0.25));
+  overflow: hidden;
+  border-radius: var(--border-radius);
+}
+
+
+/* Main Header */
+.header {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto;
+  grid-template-areas: 
+  "logo button"
+  "menu menu";
+  padding-top: 10px;
+}
+
+@media only screen and (min-width: 768px) {
+  .header {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 
+    "logo menu button";
+  }
+}
+
+.header__logo {
+  font-weight: 800;
+  font-size: 25px;
+  text-decoration: none;
+  grid-area: logo;
+}
+
+.header__logo:hover {
+  text-decoration: underline;
+}
+
+.header__nav {
+  justify-content: center;
+  display: flex;
+  grid-area: menu;
+}
+
+.header__logo, .header__nav, .header__button {
+  width: 100%;
+}
+
+.header__button {
+  display: flex;
+  justify-content: end;
+  grid-area: button;
+}
+
+.header__button button {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  border: 0;
+  padding: 6px 12px;
+  background: none;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--black);
+}
+
+.header__button button:hover {
+  border: 2px solid var(--black);
+}
+
+/* Header -> Navigation */
+.header__nav ul {
+  list-style-type: none;
+  display: flex;
+  gap: 1rem;
+  font-weight: 600;
+  padding: 0;
+}
+
+.header__nav ul a {
+  padding: 10px;
+  text-decoration: none;
+}
+
+.header__nav ul a.active {
+  color: #7E7E7E;
+}
+
+.header__nav ul a:hover {
+  text-decoration: underline;
+}
+
+/* Welcome_text - HomePage */
+.welcome_text {
+  padding: 10px 0;
+  text-align: center;
+}
+
+.welcome_text__heading {
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.welcome_text__body {
+  font-size: var(--font-size-md);
+  margin: 5px 0 40px 0;
+}
+
+
+/* Home event List */
+.events__heading {
+  margin-top: 4rem;
+  font-weight: 400;
+}
+
+.event-ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  font-size: clamp(1.13rem, calc(1.08rem + 0.22vw), 1.25rem);
+  display: flex;
+  flex-direction: column;
+}
+
+.event-list__date {
+  font-size: 1rem;
+  color: var(--gray);
+  width: 100px;
+  display: inline-block;
+  width: 260px;
+}
+
+.event-list__description {
+  font-size: 1rem;
+  color: var(--gray);
+  width: 100px;
+  display: inline-block;
+  width: 260px;
+}
+
+.event-ul li a {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-decoration: none;
+  margin: 18px 0;
+}
+
+@media only screen and (min-width: 768px) {
+  .event-ul li a {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .event-list__date {
+    text-align: right;
+  }
+}
+
+.event-ul li:not(:last-child) {
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.event-ul a {
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--black);
+  text-decoration: none;
+  transition: color 0.2s, opacity 0.2s;
+}
+
+/* standaard: alles is zwart */
+.event-ul a {
+  color: var(--black);
+}
+
+/* als je over de UL hover, alle links lichter */
+.event-ul:hover a {
+  color: var(--gray); /* lichte kleur voor niet-gehoverde */
+}
+
+/* hovered link wordt zwart */
+.event-ul a:hover {
+  color: var(--black);
+}
+
+
+.event {
+  white-space: pre-wrap;
+}
+
+
+/* Footer */
+.footer {
+  margin: 4rem;
+  text-align: center;
+}
+
+
+/* Dashboard Admin */
+.admin-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-posts {
+  padding: 0;
+  margin: 0;
+}
+
+.admin-post-controls form {
+  display: inline-block;
+}
+
+.admin-post-controls .btn  {
+  display: inline-block;
+  background-color: var(--black);
+  color: var(--gray-light);
+  border: 0;
+  text-decoration: none;
+  font-size: .8rem;
+  padding: 4px 8px;
+  line-height: 2;
+}
+
+.admin-posts li {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+/* SeachBar */
+.searchBar {
+  visibility: hidden;
+  transform: translateY(-100px);
+  background-color: var(--black);
+  padding: 4px 0;
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+
+.searchBar.open {
+  transform: translateY(0);
+  transition: transform 0.1s;
+}
+
+.searchBar input {
+  margin: 0;
+  border: 0;
+}
+
+#searchClose {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: var(--gray-light);
+  padding: 15px;
+}
+
+
+.pagination {
+  font-size: 1.3rem;
+  color: var(--gray);
+  text-decoration: none;
+  margin-top: 40px;
+  display: inline-block;
+}
+
+.nav-pagination {
+  display: flex;
+  justify-content: space-between;
+}
+
+.pagination-placeholder {
+  visibility: hidden;
+}
+
+.pagination:hover {
+  color: var(--black);
+}
+
+input[type="date"]{
+    background-color: black;
+    padding: 10px;
+    color: #ffffff;
+    font-size: 18px;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+}
+
+.event-page-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.event-page-title h1 {
+  flex: 1 1 60%;
+  margin: 0;
+  font-size: 2rem;
+  text-align: left;
+  word-break: break-word;
+}
+
+.share-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centreren label + knoppen */
+  flex: 0 0 auto;
+}
+
+.share-label {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  text-align: center;
+}
+
+
+Dit is mijn hele css file kan je nu helpen die responsive te maken?
+
+## Antwoord
+
+Ja — zeker! 💪
+Je hebt al een **mooie, consistente CSS** opgebouwd met variabelen en een duidelijke structuur.
+Laten we dit optimaliseren voor **responsiveness** zodat het er op mobiel, tablet én desktop altijd strak uitziet — zonder dat je bestaande stijl breekt.
+
+---
+
+## 🎯 Doel
+
+We maken jouw site volledig **responsive**, door:
+
+1. Typografie en layout vloeiend te laten schalen.
+2. Afstanden en grids aan te passen bij kleinere schermen.
+3. De `.event-page-title` (met “Share this on”) goed te laten werken op mobiel.
+4. Kleine verbeteringen aan de navigatie en containerbreedte.
+
+---
+
+## ✅ **Toevoegingen & verbeteringen aan je CSS**
+
+Plaats dit **hele blok onderaan** je stylesheet (zodat het bestaande stijlen overschrijft indien nodig):
+
+```css
+/* ============================= */
+/* 📱 RESPONSIVE DESIGN          */
+/* ============================= */
+
+/* Tablets (tot 992px) */
+@media (max-width: 992px) {
+
+  .container {
+    max-width: 90%;
+    padding: 0 15px;
+  }
+
+  h1 {
+    font-size: var(--font-size-lg);
+  }
+
+  h2 {
+    font-size: var(--font-size-md);
+  }
+
+  /* Header grid herschikken */
+  .header {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "logo button"
+      "menu menu";
+  }
+
+  .header__nav ul {
+    gap: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  /* Hero image iets kleiner */
+  .hero-image {
+    max-height: 400px;
+  }
+
+  /* Event lijst: meer ademruimte */
+  .event-ul li a {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .event-list__date,
+  .event-list__description {
+    width: 100%;
+    text-align: left;
+  }
+
+  /* Event page titel sectie */
+  .event-page-title {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .event-page-title h1 {
+    flex: 1 1 100%;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .share-section {
+    align-items: center;
+  }
+
+  .shareon {
+    justify-content: center;
+  }
+}
+
+/* Smartphones (tot 600px) */
+@media (max-width: 600px) {
+  body {
+    font-size: 0.95rem;
+  }
+
+  .header {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "logo"
+      "menu"
+      "button";
+    text-align: center;
+  }
+
+  .header__nav ul {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .header__button {
+    justify-content: center;
+  }
+
+  .hero-image {
+    max-height: 300px;
+  }
+
+  .welcome_text {
+    padding: 20px 0;
+  }
+
+  .welcome_text__body {
+    font-size: 1rem;
+  }
+
+  /* Event titel & share knoppen */
+  .event-page-title {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .event-page-title h1 {
+    font-size: 1.6rem;
+    text-align: center;
+  }
+
+  .share-section {
+    align-items: center;
+  }
+
+  .share-label {
+    margin-bottom: 0.4rem;
+  }
+
+  .shareon {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .shareon a {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  /* Footer */
+  .footer {
+    margin: 2rem 0;
+    font-size: 0.9rem;
+  }
+}
+
+/* Extra kleine schermen (tot 400px) */
+@media (max-width: 400px) {
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  .btn, .btn-submit {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+
+  .shareon a {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.5rem;
+  }
+}
+```
+
+---
+
+## 📋 Wat dit doet:
+
+### 🧱 Layout
+
+* `.container` schaalt automatisch — geen harde 982px meer op kleine schermen.
+* Flex en grid breken netjes in kolommen waar nodig.
+* De “Share this on” sectie wordt **centraal uitgelijnd** onder de titel op mobiel.
+
+### 🖋️ Typografie
+
+* Titels en tekst worden kleiner op mobiel (met `clamp()` behoud je vloeiende schaal).
+* Afstanden worden aangepast zodat alles luchtig blijft.
+
+### 🧭 Navigatie
+
+* Menu en knoppen komen onder elkaar op mobiel, gecentreerd.
+* Logo blijft zichtbaar bovenaan.
+
+### 🗓️ Event-pagina
+
+* Titel en sharebuttons centreren op mobiel, maar staan naast elkaar op desktop.
+
+---
+
+Wil je dat ik ook een **sticky mobiele navigatiebalk** (hamburger-menu stijl) toevoeg voor kleine schermen?
+Dat past hier heel mooi in en maakt de header nog gebruiksvriendelijker.
+
+## Vraag
+kan je ook op mobile een hamburger menu voorzien ?
+
+## Antwoord
+
+Helemaal top 💪 — laten we dat **hamburger menu** toevoegen aan jouw bestaande structuur, zó dat het netjes integreert met je huidige CSS-stijl en Poppins-look.
+
+We houden het **simpel, clean en zonder JS-frameworks**, alleen wat lichte CSS + één klein stukje JavaScript om het menu te openen/sluiten.
+
+---
+
+## ✅ 1️⃣ HTML / Pug-structuur (voeg dit toe in je header)
+
+Je hebt nu waarschijnlijk iets als dit:
+
+```pug
+header.header
+    a.header__logo(href='/') EventLink
+    nav.header__nav
+        ul
+            li: a(href='/') Home
+            li: a(href='/events') Events
+            li: a(href='/about') About
+    .header__button
+        button Search
+```
+
+👉 Vervang dat door dit (Pug-versie met hamburger):
+
+```pug
+header.header
+    a.header__logo(href='/') EventLink
+
+    button.header__toggle(type='button' aria-label='Toggle menu')
+        span
+        span
+        span
+
+    nav.header__nav
+        ul
+            li: a(href='/') Home
+            li: a(href='/events') Events
+            li: a(href='/about') About
+            li: a(href='/contact') Contact
+
+    .header__button
+        button Search
+```
+
+---
+
+## ✅ 2️⃣ CSS (voeg dit **onderaan** je stylesheet toe)
+
+```css
+/* ====================================== */
+/* 🍔 HAMBURGER MENU                      */
+/* ====================================== */
+
+.header__toggle {
+  display: none; /* desktop: verborgen */
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.header__toggle span {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background-color: var(--black);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Hamburger animatie wanneer actief */
+.header__toggle.active span:nth-child(1) {
+  transform: translateY(7.5px) rotate(45deg);
+}
+
+.header__toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.header__toggle.active span:nth-child(3) {
+  transform: translateY(-7.5px) rotate(-45deg);
+}
+
+/* ============================= */
+/* 📱 MOBILE MENU BEHAVIOR       */
+/* ============================= */
+@media (max-width: 768px) {
+
+  .header {
+    grid-template-columns: 1fr auto; /* logo links, hamburger rechts */
+    grid-template-areas:
+      "logo toggle"
+      "menu menu"
+      "button button";
+  }
+
+  .header__toggle {
+    display: flex;
+    grid-area: toggle;
+    align-self: center;
+    justify-self: end;
+  }
+
+  .header__nav {
+    display: none; /* standaard verborgen */
+    grid-area: menu;
+    flex-direction: column;
+    align-items: center;
+    background-color: #FAF5EE;
+    border-top: 1px solid var(--gray-light);
+    padding: 1rem 0;
+    width: 100%;
+  }
+
+  .header__nav.open {
+    display: flex; /* tonen bij toggle */
+  }
+
+  .header__nav ul {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .header__button {
+    grid-area: button;
+    justify-content: center;
+  }
+}
+```
+
+---
+
+## ✅ 3️⃣ JavaScript (voeg dit vlak voor `</body>` toe)
+
+Als je Pug gebruikt, bijvoorbeeld in `layout.pug` of `base.pug`, doe:
+
+```pug
+script.
+    document.addEventListener("DOMContentLoaded", function() {
+        const toggle = document.querySelector(".header__toggle");
+        const nav = document.querySelector(".header__nav");
+
+        toggle.addEventListener("click", () => {
+            toggle.classList.toggle("active");
+            nav.classList.toggle("open");
+        });
+    });
+```
+
+---
+
+## ✨ Resultaat
+
+* Op **desktop** blijft alles zoals het was.
+* Op **mobiel/tablet**:
+
+  * Er verschijnt een **hamburger-icoon** rechtsboven.
+  * Bij klikken schuift het menu open onder de header.
+  * De drie streepjes veranderen in een **kruisje**.
+  * Het menu sluit weer bij een tweede klik.
+
+---
+
+Wil je dat ik het menu bij openen ook een **mooie slide-down animatie** geef (in plaats van dat het ineens verschijnt)?
+Dat is maar één regel extra CSS.
