@@ -12,7 +12,22 @@ html
     script(src='/js/consent.js')
     script(src='js/script.js', type='text/javascript')
 
-        title My Site
+    //- This is added to be able to use the share buttons
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/shareon@2.7.0/dist/shareon.min.css")
+    script(src="https://cdn.jsdelivr.net/npm/shareon@2.7.0/dist/shareon.iife.min.js", defer, init)
+    script.
+      document.addEventListener("DOMContentLoaded", function() {
+          const toggle = document.querySelector(".header__toggle");
+          const nav = document.querySelector(".header__nav");
+
+          toggle.addEventListener("click", () => {
+              toggle.classList.toggle("active");
+              nav.classList.toggle("open");
+          });
+      });
+
+
+
   body
     //- This is a search bar function we could add it here or maybe below the title in the main text 
       include partials/search.pug

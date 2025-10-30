@@ -1,4 +1,28 @@
 extends layout
 block content
-    p #{event.title}
+
+    .event-page-title
+        //-
+            h1 #{event.title}
+
+            .shareon
+                a.copy-url() Copy URL
+                a.facebook() Facebook
+                a.reddit() Reddit
+                a.print() Print
+                a.email(data-title=`Check out this cool event ${event.title}!`) Email
+                a.whatsapp(data-title=`Check out this cool event ${event.title}!`, data-text='I found this cool event on www.eventlink.com and I want to invite you!') Whatsapp
+        h1 #{event.title}
+        .share-section
+            span.share-label Share this on:
+            .shareon
+                a.copy-url() Copy URL
+                a.facebook() Facebook
+                a.reddit() Reddit
+                a.print() Print
+                a.email(data-title=`Check out this cool event ${event.title}!`) Email
+                a.whatsapp(data-title=`Check out this cool event ${event.title}!`, data-text='I found this cool event on www.eventlink.com and I want to invite you!') Whatsapp
+
     p #{event.description}
+
+    

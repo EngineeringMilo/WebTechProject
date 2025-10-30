@@ -1857,3 +1857,117 @@ a(href=event && event._id ? `/event/${event._id}` : '#')
 ---
 
 Wil je dat ik laat zien hoe je dit doet binnen een `each` loop (bijv. bij `each event in events`)?
+
+
+## Vraag
+
+.event-page-title
+
+Dit is mijn html class en ik heb een div met die div met daarin 
+
+h1 #{event.title}
+
+        .shareon
+            a.copy-url() Copy URL
+            a.facebook() Facebook
+            a.reddit() Reddit
+            a.print() Print
+            a.email(data-title=`Check out this cool event ${event.title}!`) Email
+            a.whatsapp(data-title=`Check out this cool event ${event.title}!`, data-text='I found this cool event on www.eventlink.com and I want to invite you!') Whatsapp
+
+(het is pug)
+
+Ik wil graag dat er staat share this on: 
+
+dan de knoppen naast elkaar en dan ook nog dat de titel links uitgelijnd is en de knoppen rechts
+
+
+## Antwoord
+
+Perfect 👍 — laten we dit stap voor stap doen.
+Je gebruikt **Pug**, dus ik geef je de juiste markup én de bijbehorende **CSS** om precies te krijgen wat je beschrijft:
+
+---
+
+### ✅ **Pug-code**
+
+```pug
+.event-page-title
+    .title-and-share
+        h1= event.title
+        .share-section
+            span.share-label Share this on:
+            .shareon
+                a.copy-url Copy URL
+                a.facebook Facebook
+                a.reddit Reddit
+                a.print Print
+                a.email(data-title=`Check out this cool event ${event.title}!`) Email
+                a.whatsapp(
+                    data-title=`Check out this cool event ${event.title}!`,
+                    data-text='I found this cool event on www.eventlink.com and I want to invite you!'
+                ) Whatsapp
+```
+
+---
+
+### 🎨 **CSS (of SCSS)**
+
+```css
+.event-page-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* handig voor kleinere schermen */
+  margin-bottom: 1.5rem;
+}
+
+.event-page-title h1 {
+  margin: 0;
+  font-size: 2rem;
+  text-align: left;
+}
+
+.share-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* ruimte tussen label en knoppen */
+}
+
+.share-label {
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.shareon {
+  display: flex;
+  gap: 0.5rem; /* ruimte tussen share-knoppen */
+}
+
+.shareon a {
+  text-decoration: none;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.shareon a:hover {
+  background: #f0f0f0;
+}
+```
+
+---
+
+### 💡 Wat dit doet:
+
+* **Titel links**, **knoppen rechts** → dankzij `display: flex; justify-content: space-between;`.
+* De tekst **“Share this on:”** komt vóór de knoppen.
+* Alles blijft netjes uitgelijnd en breekt mooi op mobiel.
+* Je kunt de `gap`-waardes aanpassen voor meer of minder ruimte.
+
+---
+
+Wil je dat ik er ook een **responsive versie** bijzet (bijvoorbeeld dat de knoppen onder de titel komen op mobiel)?
