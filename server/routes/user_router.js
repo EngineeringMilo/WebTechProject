@@ -13,7 +13,8 @@ const userLayout ='../views/userlayout';
 
 const authMiddleware = async (req,res,next) => {
     const token = req.cookies.token;
-
+    // TODO Check which event you're owner of.
+    // only be able to show those when you need them.
     if(!token){
         return res.render('login');
     }
