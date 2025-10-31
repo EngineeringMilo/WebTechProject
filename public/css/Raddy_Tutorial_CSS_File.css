@@ -70,13 +70,11 @@ textarea {
   margin: 4px 2px; 
   cursor: pointer;
   border-radius: 5px;
-  box-shadow: 5px 5px 8px gray;
 }
 
 .btn-delete {
   padding: 10px 16px;
   background-color: var(--red);
-  box-shadow: 5px 5px 8px darkred;
 }
 
 .btn-submit {
@@ -90,7 +88,6 @@ textarea {
   border-radius: 5px;
   display: flex;
   justify-content: center;
-  box-shadow: 5px 5px 8px gray;
 }
 
 
@@ -364,7 +361,6 @@ img {
   font-size: .8rem;
   padding: 4px 8px;
   line-height: 2;
-  box-shadow: 5px 5px 8px gray;
 }
 
 .admin-posts li {
