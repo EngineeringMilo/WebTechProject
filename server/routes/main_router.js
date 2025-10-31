@@ -31,7 +31,7 @@ router.get('', async (req, res) => {
   }
   try {
       //Logic to display a certain amount of pages on the homepage
-      let perPage = 5;
+      let perPage = 2;
       let page = req.query.page || 1;
       const events = await Event.aggregate([ { $sort: { createdAt: -1 } } ])
       .skip((page - 1) * perPage)
@@ -41,7 +41,7 @@ router.get('', async (req, res) => {
       const count = await Event.countDocuments();
       const prevPage = parseInt(page) + 1;
       const nextPage = parseInt(page) - 1;
-      const hasPrevPage = prevPage < Math.ceil(count / perPage);
+      const hasPrevPage = prevPage <= Math.ceil(count / perPage);
       const hasNextPage = prevPage > 2;
 
 

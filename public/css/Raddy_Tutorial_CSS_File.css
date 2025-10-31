@@ -396,7 +396,7 @@ img {
   color: var(--black);
 }
 
-input[type="date"]{
+input[type="datetime-local"]{
     background-color: black;
     padding: 10px;
     color: #ffffff;
