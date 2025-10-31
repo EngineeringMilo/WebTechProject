@@ -1971,3 +1971,121 @@ Je gebruikt **Pug**, dus ik geef je de juiste markup én de bijbehorende **CSS**
 ---
 
 Wil je dat ik er ook een **responsive versie** bijzet (bijvoorbeeld dat de knoppen onder de titel komen op mobiel)?
+## Vraag
+How can i add a extra empty line in with pug file
+## Antwoord
+In Pug, since whitespace is significant and it doesn’t have <br> automatically, you have a few ways to add an extra empty line or space:
+
+1. Use a <br> tag
+p This is line 1
+br
+p This is line 2
+
+
+br is a self-closing tag in Pug.
+
+Will render as an extra line in HTML.
+
+2. Use margin/padding in CSS
+
+Instead of adding empty lines, it’s often cleaner to use CSS:
+
+p.line1 This is line 1
+p.line2 This is line 2
+
+.line2 {
+  margin-top: 1rem; /* Adds space above this line */
+}
+
+3. Use &nbsp; for an empty line
+p &nbsp;
+
+
+This will create a “blank” paragraph.
+
+Works if you just need a visible empty line in text flow.
+
+4. Multiple <br> for bigger gaps
+p Line 1
+br
+br
+p Line 2
+
+
+Two <br> tags = double spacing.
+
+💡 Tip: Using CSS spacing (margin/padding) is better for layout consistency than adding multiple <br> tags.
+
+If you want, I can show a Pug-friendly way to add multiple empty lines with a single clean syntax. Do you want me to do that?
+
+## Vraag
+textarea(name="description", placeholder="Give a description of your event. This way people know what they should expect" cols="50", rows="10")
+
+Can i use this to show text but not let people edit it?
+## Antwoord
+Yes, you can, but you need to make the <textarea> read-only. In Pug, you do this by adding the readonly attribute:
+
+textarea(name="description", placeholder="Give a description of your event. This way people know what they should expect", cols="50", rows="10", readonly)
+  | #{event.description}
+
+
+Key points:
+
+readonly prevents editing, but still allows users to scroll and copy text.
+
+If you want it completely non-interactive, you could use disabled instead, but then the text may appear grayed out and won’t be sent with a form.
+
+So for showing text only, readonly is usually best.
+
+Do you want me to show a version that looks like normal text instead of a textarea?
+
+## Vraag
+p #{event.description}
+I want a rectangle around my event description
+
+## Antwoord
+Got it! If you want a rectangle (a box) around your event description, you can wrap it in a container div and style it with CSS. You don’t need to change your Pug drastically, just add a class. For example:
+
+Pug
+    //- Description box
+    .description-box
+        p #{event.description}
+
+CSS
+.description-box {
+    border: 2px solid #000; /* black border, change color if you want */
+    padding: 15px;
+    border-radius: 8px; /* optional rounded corners */
+    background-color: #f9f9f9; /* optional background color */
+    margin-bottom: 20px;
+}
+
+
+✅ This will give your event description a neat rectangle around it without affecting your share buttons.
+
+If you want, I can also show how to make it scrollable if the description is very long. Do you want that?
+## Vraag
+abel(for="ticketPrice") What is the ticket price of your event? input(type="text", placeholder="The ticket price of your event", name="ticketPrice") How can i change this so it only uses numbers
+
+## Antwoord
+To make an input field accept only numbers, you should use type="number" instead of type="text". You can also add attributes like min, max, and step to control what kind of numbers are allowed.
+
+Here’s an example for your ticket price input:
+
+label(for="ticketPrice") What is the ticket price of your event?
+input(
+    type="number", 
+    placeholder="The ticket price of your event", 
+    name="ticketPrice",
+    min="0",       // Minimum value
+    step="0.01"    // Allows decimals
+)
+
+
+type="number" ensures the input only accepts numeric values.
+
+min="0" prevents negative numbers.
+
+step="0.01" allows cents/decimal numbers (use 1 if you want whole numbers only).
+
+Do you want me to show how to make it automatically format as currency as the user types?

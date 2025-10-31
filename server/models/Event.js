@@ -22,6 +22,14 @@ const EventSchema = new Schema({
   date: {
     type: Date,
     required: true
+  },
+  targetAudience: {
+    type: String,
+    required: false
+  },
+  ticketPrice: {
+    type: String,
+    required: false
   }
 }, {
   timestamps: true // Automatic creation of createdAt & updatedAt

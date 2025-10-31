@@ -1,3 +1,4 @@
+//app.js
 require('dotenv').config();
 
 const express = require('express');
@@ -18,7 +19,7 @@ const PORT = 3000 || process.env.PORT;
 connectDB();
 
 //Adding the public (client side) folder
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));//css,images...
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
 //Needed to parse the JSON from the forms
@@ -35,7 +36,7 @@ app.use(methodOverride('_method'));
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave: false,
+  resave: false,// don't save if nothing changed
   saveUninitialized: true,
   store: MongoStore.create({
     mongoUrl: process.env.MONGODB_URI
