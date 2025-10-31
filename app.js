@@ -55,7 +55,7 @@ app.listen(PORT, () => {
 
 // When the user generates a 404 error this will handle it
 // It shows a four o four page
-/*
+
 app.use(function(req, res, next) {
   res.status(404);
 
@@ -64,7 +64,7 @@ app.use(function(req, res, next) {
     return;
   }
 });
-*/
+
 
 app.get("/", (req, res) => {
   const consentStatus = req.cookies.cookieConsent;// pop-up disapear if accepted
