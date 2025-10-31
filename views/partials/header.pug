@@ -1,22 +1,7 @@
-//-
-    header.header
-        a(href='/', class = "header__logo") EventLink
-        nav.header__nav
-            ul
-                li: a(href='/profile', class = "") Profile
-                li: a(href='/cookie', class = "") Cookie Policy
-                li: a(href='/profile', class = "") Login
-
-        //- This could be a search button we could add later
-            .header__button
-                button.searchBtn(aria-expanded = "false") Search 
-                    svg(width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg")
-                        path(d="M7.79167 13.4583C10.9213 13.4583 13.4583 10.9213 13.4583 7.79167C13.4583 4.66205 10.9213 2.125 7.79167 2.125C4.66205 2.125 2.125 4.66205 2.125 7.79167C2.125 10.9213 4.66205 13.4583 7.79167 13.4583Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
-                        path(d="M14.875 14.875L11.7938 11.7938" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
-
 header.header
-    a.header__logo(href='/') EventLink
-
+    a.header__logo(href='/')
+        img(src="/img/EventLinkLogo.png", alt="EventLink logo")
+        
     button.header__toggle(type='button' aria-label='Toggle menu')
         span
         span
@@ -24,6 +9,7 @@ header.header
 
     nav.header__nav
         ul
-            li: a(href='/profile', class = "") Profile
-            li: a(href='/cookie', class = "") Cookie Policy
-            li: a(href='/profile', class = "") Login
+            li: a(href='/profile') Profile
+            li: a(href='/cookie') Cookie Policy
+            li: a(href='/profile') Login
+            li: a(href="/space") Space events

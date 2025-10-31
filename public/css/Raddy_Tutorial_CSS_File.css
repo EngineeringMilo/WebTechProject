@@ -4,7 +4,7 @@
   --black: #1c1c1c;
   --gray: #7E7E7E;
   --gray-light: #E4E4E4;
-  --red: #b30000;
+  --green: #00A36C;
   --font-size-base: 1rem;
   --font-size-md: clamp(1.25rem, 0.61vw + 1.1rem, 1.58rem);
   --font-size-lg: clamp(1.56rem, 1vw + 1.31rem, 2.11rem);
@@ -116,10 +116,30 @@ img {
 }
 
 .header__logo {
-  font-weight: 800;
-  font-size: 25px;
+  display: flex;
+  align-items: center;
   text-decoration: none;
-  grid-area: logo;
+}
+
+.header__logo img {
+  height: 150px;            /* basisgrootte */
+  width: auto;
+  
+  transition: height 0.3s ease;
+}
+
+/* groter op brede schermen */
+@media (max-width: 992px) {
+  .header__logo img {
+    height: 100px;
+  }
+}
+
+/* kleiner op mobiel */
+@media (max-width: 600px) {
+  .header__logo img {
+    height: 80px;
+  }
 }
 
 .header__logo:hover {
@@ -130,6 +150,8 @@ img {
   justify-content: center;
   display: flex;
   grid-area: menu;
+  border-bottom: 1px solid var(--gray-light);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .header__logo, .header__nav, .header__button {
@@ -196,6 +218,10 @@ img {
 .welcome_text__body {
   font-size: var(--font-size-md);
   margin: 5px 0 40px 0;
+}
+
+.joke_text__body{
+  color: #7E7E7E;
 }
 
 
@@ -374,7 +400,7 @@ img {
   color: var(--black);
 }
 
-input[type="date"]{
+input[type="datetime-local"]{
     background-color: black;
     padding: 10px;
     color: #ffffff;
@@ -387,8 +413,6 @@ input[type="date"]{
 .event-page-title {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
@@ -412,6 +436,12 @@ input[type="date"]{
   font-weight: 600;
   margin-bottom: 0.3rem;
   text-align: center;
+}
+
+#map{
+  height: 300px;
+  border-radius: 8px;
+  margin-bottom: 20px;
 }
 
 
@@ -615,10 +645,12 @@ input[type="date"]{
   transform: translateY(-7.5px) rotate(-45deg);
 }
 
+
+
 /* ============================= */
 /* 📱 MOBILE MENU BEHAVIOR       */
 /* ============================= */
-@media (max-width: 768px) {
+@media (max-width: 993px) {
 
   .header {
     grid-template-columns: 1fr auto; /* logo links, hamburger rechts */
@@ -644,6 +676,7 @@ input[type="date"]{
     border-top: 1px solid var(--gray-light);
     padding: 1rem 0;
     width: 100%;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   .header__nav.open {
@@ -661,3 +694,77 @@ input[type="date"]{
   }
 }
 
+/* ====================================== */
+/* 🌞🌙 LIGHT & DARK MODE                 */
+/* ====================================== */
+
+/* Basis (licht thema - standaard) */
+body {
+  background-color: #FAF5EE;
+  color: var(--black);
+}
+
+.logo-light {
+  display: inline;
+}
+
+.logo-dark {
+  display: none;
+}
+
+/* Donkere modus detectie via systeeminstelling */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --black: #f5f5f5;
+    --gray: #bdbdbd;
+    --gray-light: #2a2a2a;
+    --red: #00A36C;
+    background-color: #121212;
+  }
+
+  body {
+    background-color: #121212;
+    color: var(--black);
+  }
+
+  a { color: var(--black); }
+
+  .container {
+    background-color: transparent;
+  }
+
+  .header__nav ul a:hover {
+    text-decoration: underline;
+    color: #00A36C;
+  }
+
+  /* Knoppen aanpassen */
+  .btn, .btn-submit {
+    background-color: var(--black);
+    color: #121212;
+  }
+
+  /* Deel 'share' knoppen */
+  .shareon a {
+    border-color: var(--gray);
+    color: var(--black);
+  }
+
+  .shareon a:hover {
+    background: #2a2a2a;
+  }
+
+  .header__nav {
+    background-color: #121212; /* zelfde als body */
+    border-bottom: 1px solid var(--gray-light);
+  }
+
+  .header__nav ul a {
+    color: var(--black); /* lichtgrijze tekst */
+  }
+
+
+  .header__toggle span {
+    background-color: var(--black); /* lichte lijnen voor burger */
+  }
+}

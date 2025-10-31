@@ -4,6 +4,8 @@ block content
   .welcome_text 
     h1.welcome_text__heading Hey welcome to EventLink!
     p.welcome_text__body Here you can make, find and join events.
+    p.joke_text__body A little joke to make your day a bit better
+    p.joke_text__body #{joke}
 
   //- Here we could add an image like so:
     img(src="/img/", alt="person looking out through window", class="hero-image", width="981", height="528")
@@ -19,8 +21,10 @@ block content
               They are led to the event page
             a(href=`/event/${event._id}`, class='')
               span #{event.title}
-              span.event-list__description #{event.description}
-              span.event-list__date #{event.date.toDateString()}
+              span.event-list__description #{event.description.length > 80 ? event.description.substring(0, 80) + '...' : event.description}
+              .share-section
+                span.event-list__date Date:
+                span.event-list__date #{event.date.toDateString()}
     else
       p No events yet. Make your very own on the #[a(href="/profile") Profile] page!
     .nav-pagination
@@ -30,3 +34,8 @@ block content
         span.pagination-placeholder
       if nextPage != null
         a.pagination(href='/?page=' + nextPage) View newer posts &gt;
+    br
+    br
+    hr
+    h4 Look for events on the map 
+    #map 
