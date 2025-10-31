@@ -15,6 +15,8 @@ router.get('', async (req, res) => {
   
   /**
    *  This Portion is to fetch a joke from an external API
+   *  The reason that we do this server-side is because if people can alter
+   *  the link they could potentionally remove certain flags and get no-so-nice jokes.
    */
   let joke;
   try {

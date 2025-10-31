@@ -434,6 +434,12 @@ input[type="date"]{
   text-align: center;
 }
 
+#map{
+  height: 300px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
 
 /* ============================= */
 /* 📱 RESPONSIVE DESIGN          */

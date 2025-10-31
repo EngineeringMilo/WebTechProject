@@ -5,7 +5,7 @@ block content
     h1.welcome_text__heading Hey welcome to EventLink!
     p.welcome_text__body Here you can make, find and join events.
     p.welcom_text__body A little joke to make your day a bit better
-    p.welcom_text__body #{joke}
+    p#joke-text.welcom_text__body
 
   //- Here we could add an image like so:
     img(src="/img/", alt="person looking out through window", class="hero-image", width="981", height="528")
@@ -34,3 +34,5 @@ block content
         span.pagination-placeholder
       if nextPage != null
         a.pagination(href='/?page=' + nextPage) View newer posts &gt;
+
+    #map 
