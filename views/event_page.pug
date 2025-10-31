@@ -13,7 +13,9 @@ block content
                 a.email(data-title=`Check out this cool event ${event.title}!`) Email
                 a.whatsapp(data-title=`Check out this cool event ${event.title}!`, data-text='I found this cool event on www.eventlink.com and I want to invite you!') Whatsapp
         h1 #{event.title}
-    p #{event.date.toDateString()}, #{event.location}
+    p Date: #{event.date.toDateString()}, Location: #{event.location}
+    p Target audience: #{event.targetAudience}
+    p Ticket price: #{event.ticketPrice}
     .description-box
         p #{event.description}
         
