@@ -129,14 +129,19 @@ router.post('/createevent', authMiddleware, async (req, res) => {
 router.get('/edit-event/:id', authMiddleware, async (req, res) => {
     try {
         const event = await Event.findById(req.params.id);
-        console.log(event);
-        res.render('event-edit', {
-            event
-        });
+        if(event.createdBy.toString() === req.user._id.toString()){
+            res.render('event-edit', {
+                event
+            });
+        }
+        else {
+            res.render('fourOfour');
+        }
+        
     } catch (error) {
         console.log(error);
     }
-})
+});
 
 
 
@@ -172,7 +177,7 @@ router.put('/edit-event/:id', authMiddleware, async (req, res) => {
 
 router.delete('/delete-event/:id', authMiddleware, async (req, res) => {
     try {
-        
+        //TODO Check if the person who wants to delete it is the right person
         await Event.findByIdAndDelete(req.params.id);
         res.redirect(`/profile`);
     } catch (error) {

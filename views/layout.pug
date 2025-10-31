@@ -10,22 +10,17 @@ html
     link(rel='stylesheet', href='/node_modules/vanilla-cookieconsent/dist/cookieconsent.css')
     script(src="/node_modules/vanilla-cookieconsent/dist/cookieconsent.umd.js")
     script(src='/js/consent.js')
-    script(src='js/script.js', type='text/javascript')
+    script(src='/js/script.js', type='text/javascript')
+    link(rel="shortcut icon", href="/img/EventLinkLogo.png", type="image/x-icon")
 
     //- This is added to be able to use the share buttons
     link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/shareon@2.7.0/dist/shareon.min.css")
     script(src="https://cdn.jsdelivr.net/npm/shareon@2.7.0/dist/shareon.iife.min.js", defer, init)
-    script.
-      document.addEventListener("DOMContentLoaded", function() {
-          const toggle = document.querySelector(".header__toggle");
-          const nav = document.querySelector(".header__nav");
-
-          toggle.addEventListener("click", () => {
-              toggle.classList.toggle("active");
-              nav.classList.toggle("open");
-          });
-      });
-
+    script(src='/js/hamburger.js', type='text/javascript')
+    //- The imports for the map
+    link(rel="stylesheet", href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css")
+    script(src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js")
+    script(src="/js/map.js", defer) 
 
 
   body

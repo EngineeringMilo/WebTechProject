@@ -1,11 +1,27 @@
+//-
+    header.header
+        a(href='/', class = "header__logo") EventLink
+        nav.header__nav
+            ul
+                li: a(href='/profile', class = "") Profile
+                li: a(href='/cookie', class = "") Cookie Policy
+                li: a(href='/login', class = "") Login
+
+        //- This could be a search button we could add later
 header.header
-    a(href='/', class = "header__logo") EventLink
+    a.header__logo(href='/')
+        img(src="/img/EventLinkLogo.png", alt="EventLink logo")
+
+    button.header__toggle(type='button' aria-label='Toggle menu')
+        span
+        span
+        span
+
     nav.header__nav
         ul
             li: a(href='/profile', class = "") Profile
             li: a(href='/cookie', class = "") Cookie Policy
-            li: a(href='/login', class = "") Login
+            li: a(href='/profile', class = "") Login
 
-    //- This could be a search button we could add later
     .header__button
         a(href="/logout") Logout
