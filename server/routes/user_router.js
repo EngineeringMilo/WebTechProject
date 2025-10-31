@@ -171,7 +171,7 @@ router.put('/edit-event/:id', authMiddleware, async (req, res) => {
 
 router.delete('/delete-event/:id', authMiddleware, async (req, res) => {
     try {
-        
+        //TODO Check if the person who wants to delete it is the right person
         await Event.findByIdAndDelete(req.params.id);
         res.redirect(`/profile`);
     } catch (error) {

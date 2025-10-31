@@ -220,6 +220,10 @@ img {
   margin: 5px 0 40px 0;
 }
 
+.joke_text__body{
+  color: #7E7E7E;
+}
+
 
 /* Home event List */
 .events__heading {

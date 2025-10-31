@@ -44,6 +44,8 @@ router.get('', async (req, res) => {
       const hasPrevPage = prevPage <= Math.ceil(count / perPage);
       const hasNextPage = prevPage > 2;
 
+      console.log(typeof(events));
+
 
       res.render('index', { events,
                             current: page,
