@@ -13,11 +13,20 @@ block content
         label(for="title") #[strong Title of your event]
         input(type="text", placeholder="Event title", name="title", value=`${event.title}`)
 
-        
+        label(for="location") #[strong Location of your event]
+        input(type="text", placeholder="Location of your event", value=`${event.location}`)
 
-        label(for="title") #[strong Description of your event]
+        label(for="date") #[strong Date of your event]
+        input(type="date", placeholder="Date of your event", name="date",value=`${event.date.toISOString().slice(0,10)}`)
+
+        label(for="targetAudience") #[strong What is the target audience of your event?]
+        input(type="text", placeholder="There is no target audience given for your event.", name="targetAudience",value= event.targetAudience || '')
+
+        label(for="ticketPrice") #[strong What is the ticket price of your event?]
+        input(type="number", placeholder="There is no ticket price given for your event.", name="ticketPrice",min="0", step="0.01",value=`${event.ticketPrice}`)
+
+
+        label(for="description") #[strong Description of your event]
         textarea(name="description", placeholder="Update the description of your event" cols="50", rows="10") #{event.description}
-        
-        input(type="date", name="date")
         
         input.btn-submit(type="submit", value="Update event") 

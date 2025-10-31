@@ -1,8 +1,9 @@
+//user_router.js
 const express = require('express');
 const router = express.Router();
 const Event = require('../models/Event');
 const User = require('../models/User');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');//to hash passwords
 const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser');
 
@@ -10,7 +11,7 @@ router.use(cookieParser());
 
 const userLayout ='../views/userlayout';
 
-
+//check if user is logged in
 const authMiddleware = async (req,res,next) => {
     const token = req.cookies.token;
 
@@ -62,7 +63,7 @@ router.get('/register', async (req, res) => {
 
 router.get('/profile', authMiddleware, async (req, res) => {
     try {
-        const events = await Event.find({createdBy: req.user._id});
+        const events = await Event.find({createdBy: req.user._id});//fetch all events created by logged in user
         res.render('profile', {user: req.user, events});
     } catch (error) {
         console.log(error);
@@ -100,9 +101,11 @@ router.post('/createevent', authMiddleware, async (req, res) => {
             const newEvent = new Event({
                 title: req.body.title,
                 description: req.body.description,
-                location: 'Gent, Belgium',
+                location: req.body.location,
                 date: req.body.date,
-                createdBy: req.user._id
+                createdBy: req.user._id,
+                targetAudience: req.body.targetAudience,
+                ticketPrice: req.body.ticketPrice
             });
 
             await Event.create(newEvent);
@@ -153,7 +156,10 @@ router.put('/edit-event/:id', authMiddleware, async (req, res) => {
     try {
         await Event.findByIdAndUpdate(req.params.id,{
             title: req.body.title,
-            description: req.body.description
+            description: req.body.description,
+            targetAudience: req.body.targetAudience,
+            date: req.body.date,
+            ticketPrice: req.body.ticketPrice
         });
         res.redirect(`/edit-event/${req.params.id}`);
     } catch (error) {

@@ -4,20 +4,19 @@ block content
     //- TODO: Make this page look nicer
     .event-page-title
         h1 #{event.title}
-        p Date: #{event.date.toDateString()}
+    p #{event.date.toDateString()}, #{event.location}
+    .description-box
+        p #{event.description}
         
-
-    h4 Description 
-    p #{event.description}
-
     .share-section
-            span.share-label Share this on:
-            .shareon
-                a.copy-url() Copy URL
-                a.facebook() Facebook
-                a.reddit() Reddit
-                a.print() Print
-                a.email(data-title=`Check out this cool event ${event.title}!`) Email
-                a.whatsapp(data-title=`Check out this cool event ${event.title}!`, data-text='I found this cool event on www.eventlink.com and I want to invite you!') Whatsapp
+        span.share-label Share this on:
+        .shareon
+            a.copy-url() Copy URL
+            a.facebook() Facebook
+            a.reddit() Reddit
+            a.print() Print
+            a.email(data-title=`Check out this cool event ${event.title}!`) Email
+            a.whatsapp(data-title=`Check out this cool event ${event.title}!`, data-text='I found this cool event on www.eventlink.com and I want to invite you!') Whatsapp
+
 
     
