@@ -4,10 +4,14 @@ block content
     //- TODO: Make this page look nicer
     .event-page-title
         h1 #{event.title}
-    p #{event.date.toDateString()}, #{event.location}
+    p Date: #{event.date.toDateString()}
+    p Location: #{event.location}
+    p Price: #{event.ticketPrice} &euro;
+    br
+    p Description:
     .description-box
         p #{event.description}
-        
+    br
     .share-section
         span.share-label Share this on:
         .shareon
