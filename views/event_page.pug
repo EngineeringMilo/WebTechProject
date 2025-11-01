@@ -7,6 +7,12 @@ block content
     p Date: #{event.date.toDateString()}
     p Location: #{event.location}
     p Price: #{event.ticketPrice} &euro;
+    p Target audience: #{event.targetAudience}
+    p #{user}
+    if user
+        p Button
+    else
+        a(href='/login') Log in to join
     br
     p Description:
     .description-box

@@ -25,8 +25,7 @@ const authMiddleware = async (req,res,next) => {
         req.user = user;
         next();
     } catch (error) {
-        return res.render('fourOone');
-        
+        return res.render('fourOone');   
     }
 }
 
@@ -204,11 +203,7 @@ router.delete('/delete-event/:id', authMiddleware, async (req, res) => {
     } catch (error) {
         console.log(error);
     }
-})
-
-
-
-
+});
 
 
 /**

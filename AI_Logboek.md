@@ -3038,3 +3038,73 @@ for (let key in coordMap) {
 ---
 
 Wil je dat ik even laat zien hoe het eruit ziet met jouw `events`-data (je kunt er een paar voorbeeldobjecten van tonen)? Dan kan ik je laten zien hoe de “jitter”-versie exact uitpakt.
+
+
+## Vraag
+hoe kan ik voor de datum geen dagen voor vandaag aanvaarden bij de input,
+
+
+## Antwoord
+Goede vraag 👌
+
+Je kunt in een HTML `<input type="date">` heel eenvoudig instellen dat **geen datum vóór vandaag** geselecteerd mag worden — zowel aan de **frontend** (HTML) als eventueel aan de **backend** (Express) kant.
+
+---
+
+## 🧩 **Frontend-oplossing (HTML / Pug)**
+
+Gebruik het attribuut `min` om de **minimaal toegestane datum** in te stellen.
+In Pug kun je die dynamisch genereren met JavaScript, zodat het altijd de huidige dag is.
+
+### 🧠 Voorbeeld in Pug:
+
+```pug
+- const today = new Date().toISOString().split('T')[0]
+
+label(for="date") Event Date:
+input(type="date", name="date", required, min=today)
+```
+
+👉 `new Date().toISOString().split('T')[0]` geeft iets als `"2025-11-01"`, wat perfect is voor `min`.
+
+➡️ Hiermee laat de browser **geen datum vóór vandaag** toe.
+
+---
+
+## 🛡️ **Backend-check (optioneel, maar aanbevolen)**
+
+Browsers kunnen omzeild worden, dus het is goed om ook server-side te controleren:
+
+```js
+app.post('/events', async (req, res) => {
+  const { date } = req.body;
+  const eventDate = new Date(date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // tijd resetten zodat we enkel de datum vergelijken
+
+  if (eventDate < today) {
+    return res.status(400).send('Date cannot be before today.');
+  }
+
+  // ... verder opslaan in de database
+});
+```
+
+---
+
+## ✅ Samenvatting
+
+* In je **Pug/HTML**:
+
+  ```pug
+  input(type="date", name="date", min=today)
+  ```
+* In je **Express backend**:
+
+  ```js
+  if (eventDate < today) { ... }
+  ```
+
+---
+
+Wil je dat ik even een compleet voorbeeld geef van een formulier met die `min`-datum en een bijhorende Express-route (inclusief validatie)? Dat kan ik kort uitschrijven.

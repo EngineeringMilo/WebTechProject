@@ -33,7 +33,7 @@ router.get('', async (req, res) => {
       //Logic to display a certain amount of pages on the homepage
       let perPage = 2;
       let page = req.query.page || 1;
-      const events = await Event.aggregate([ { $sort: { createdAt: -1 } } ])
+      const events = await Event.aggregate([ { $sort: { date: 1 } } ])
       .skip((page - 1) * perPage)
       .limit(perPage)
       .exec();
@@ -58,8 +58,26 @@ router.get('', async (req, res) => {
   }
 });
 
+// This is an extra check just to see if the user is logged in and if so to add a 'join' button to the event page
+const eventAuthMiddleware = async (req,res,next) => {
+  const token = req.cookies.token;
+  if (!token) {
+    req.user = null;
+    next();
+  }
 
-router.get('/event/:id', async (req, res) => {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.id);
+  } catch (err) {
+    req.user = null; // Ongeldige token? gewoon verdergaan als gast
+  }
+
+  next();
+}
+
+
+router.get('/event/:id',eventAuthMiddleware, async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
 
@@ -67,7 +85,8 @@ router.get('/event/:id', async (req, res) => {
       return res.status(404).send('Event niet gevonden');
     }
 
-    res.render('event_page', { title: event.title, event });
+    res.render('event_page', { user: req.user, 
+                                event});
   } catch (error) {
     console.error(error);
     //res.status(500).send('Er ging iets mis bij het ophalen van het event.');
