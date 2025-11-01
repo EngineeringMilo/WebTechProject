@@ -20,7 +20,6 @@ connectDB();
 
 //Adding the public (client side) folder
 app.use(express.static(path.join(__dirname, "public")));//css,images...
-app.use(express.static(path.join(__dirname, "server")));//css,images...
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
 //Needed to parse the JSON from the forms

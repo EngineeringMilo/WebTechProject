@@ -38,6 +38,8 @@ router.get('', async (req, res) => {
       .limit(perPage)
       .exec();
 
+      const eventsForMap = await Event.find();
+
       const count = await Event.countDocuments();
       const prevPage = parseInt(page) + 1;
       const nextPage = parseInt(page) - 1;
@@ -45,6 +47,7 @@ router.get('', async (req, res) => {
       const hasNextPage = prevPage > 2;
 
       res.render('index', { events,
+                            eventsForMap,
                             current: page,
                             count: count,
                             joke: joke,

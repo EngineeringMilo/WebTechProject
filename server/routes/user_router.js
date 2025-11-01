@@ -97,11 +97,32 @@ router.get('/createevent', authMiddleware, async (req, res) => {
 router.post('/createevent', authMiddleware, async (req, res) => {
     try {
         req.body
+        // This will make an API call to openrouteservice
+        // This will take the textual address and return the coordinates
+        // These coordinates will be used to put markers on the map
+        async function geocodeAddress(address){
+            const apiKey = process.env.OPENROUTESERVICE_API_KEY;
+            const geocodeUrl = `https://api.openrouteservice.org/geocode/search?api_key=${apiKey}&text=${encodeURIComponent(address)}&boundary.country=BE&size=1`;
+            const response = await fetch(geocodeUrl);
+            if (!response.ok) {
+                throw new Error(`API returned status ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (data.features && data.features.length > 0) {
+                    const coordinates = data.features[0].geometry.coordinates;
+                    return [coordinates[1], coordinates[0]]; // [longitude, latitude]
+                }
+            throw new Error('Address not found');
+        }
+
+        const locCoordinates = await geocodeAddress(req.body.location);
         try {
             const newEvent = new Event({
                 title: req.body.title,
                 description: req.body.description,
                 location: req.body.location,
+                locationCoordinates: locCoordinates,
                 date: req.body.date,
                 createdBy: req.user._id,
                 targetAudience: req.body.targetAudience,
