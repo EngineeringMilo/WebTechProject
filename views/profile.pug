@@ -25,6 +25,18 @@ block content
                             a.btn(href=`/edit-event/${event._id}`) Edit event 
                             form(action=`/delete-event/${event._id}?_method=DELETE`, method = "POST")
                                 input.btn(type="submit", value="Delete event")
+            
+            h2.events__heading Joined events
+            ul.event-ul
+                each event in joinedEvents
+                    li
+                        a(href=`/event/${event._id}`, class='')
+                            span #{event.title}
+                            span.event-list__description #{event.description.length > 80 ? event.description.substring(0, 80) + '...' : event.description}
+                            .share-section
+                                span.event-list__date Date:
+                                span.event-list__date #{event.date.toDateString()}
+                                
             .nav-pagination
             if prevPage != null
                 a.pagination(href='/?page=' + prevPage) &lt; View older posts

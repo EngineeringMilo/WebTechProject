@@ -8,12 +8,17 @@ block content
     p Location: #{event.location}
     p Price: #{event.ticketPrice} &euro;
     p Target audience: #{event.targetAudience}
-    p #{user}
-    if user
-        p Button
+    if user != null
+        if event.createdBy != user.id
+            form(action=`/event/${event._id}/join`, method = "POST")
+                if (!user.joinedEvents.includes(event._id))
+                    input.btn(type="submit", value="Join event")
+                else
+                    input.btn(type="submit", value="Leave event")
+        else if event.createdBy == user.id
+            br
     else
-        a(href='/login') Log in to join
-    br
+        a(href=`/login?redirect=/event/${event._id}`) Log in to join
     p Description:
     .description-box
         p #{event.description}

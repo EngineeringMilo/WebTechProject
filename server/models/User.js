@@ -12,7 +12,10 @@ const UserSchema = new mongoose.Schema({
     unique: true },
   password: { 
     type: String, 
-    required: true }
+    required: true },
+  joinedEvents: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Event'}]
 });
 
 module.exports = mongoose.model('User', UserSchema);

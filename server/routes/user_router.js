@@ -38,7 +38,8 @@ const authMiddleware = async (req,res,next) => {
 router.get('/login', async (req, res) => {
 
     try {
-        res.render('login');
+        const redirect = req.query.redirect || '/profile';
+        res.render('login', {redirect});
     } catch (error) {
         console.log(error);
     }
@@ -63,7 +64,8 @@ router.get('/register', async (req, res) => {
 router.get('/profile', authMiddleware, async (req, res) => {
     try {
         const events = await Event.find({createdBy: req.user._id});//fetch all events created by logged in user
-        res.render('profile', {user: req.user, events});
+        await req.user.populate('joinedEvents');
+        res.render('profile', {user: req.user, events, joinedEvents: req.user.joinedEvents});
     } catch (error) {
         console.log(error);
     }
@@ -217,7 +219,7 @@ router.post('/login', async (req,res) => {
     // if so send them to the profile
     try {
         //login logic
-        const {email, password} = req.body;
+        const {email, password, redirect} = req.body;
         const user = await User.findOne({email});
 
         if (!user){
@@ -231,7 +233,7 @@ router.post('/login', async (req,res) => {
 
         const token = jwt.sign({ userID: user._id}, process.env.JWT_SECRET);
         res.cookie('token', token, {httpOnly: true});
-        res.redirect('/profile');
+        res.redirect(redirect || '/profile');
     } catch (error) {
         console.log(error);
     }

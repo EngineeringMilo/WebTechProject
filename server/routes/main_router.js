@@ -7,6 +7,8 @@
 const express = require('express');
 const router = express.Router();
 const Event = require('../models/Event');
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
 /*
 GET method of the home route
@@ -63,33 +65,56 @@ const eventAuthMiddleware = async (req,res,next) => {
   const token = req.cookies.token;
   if (!token) {
     req.user = null;
-    next();
+    return next();
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);
+    req.user = await User.findById(decoded.userID);
+    user = req.user;
   } catch (err) {
     req.user = null; // Ongeldige token? gewoon verdergaan als gast
   }
-
   next();
 }
 
-
 router.get('/event/:id',eventAuthMiddleware, async (req, res) => {
-  try {
+  try { 
     const event = await Event.findById(req.params.id);
-
-    if (!event) {
-      return res.status(404).send('Event niet gevonden');
-    }
-
-    res.render('event_page', { user: req.user, 
-                                event});
+    res.render('event_page', { 
+                              user: req.user, 
+                              event});
   } catch (error) {
     console.error(error);
     //res.status(500).send('Er ging iets mis bij het ophalen van het event.');
+  }
+});
+
+router.post('/event/:id/join', eventAuthMiddleware, async (req, res) => {
+  if (!req.user) {
+    return res.redirect('/login');
+  }
+
+  try {
+   const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).send('Event not found');
+
+    const user = req.user;
+    const index = user.joinedEvents.indexOf(event._id);
+
+    if (index === -1) {
+      // Not yet joined
+      user.joinedEvents.push(event._id);
+    } else {
+      // Leave
+      user.joinedEvents.splice(index, 1);
+    }
+
+    await user.save();
+    res.redirect(`/event/${event._id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Something went wrong.');
   }
 });
 
