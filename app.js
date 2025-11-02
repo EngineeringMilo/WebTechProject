@@ -48,6 +48,7 @@ app.use(session({
 //This way we keep the app.js file better organised
 app.use('/', require('./server/routes/main_router'));
 app.use('/', require('./server/routes/user_router'));
+app.use('/', require('./server/routes/admin_router'));
 
 app.listen(PORT, () => {
     console.log(`App is listening on port ${PORT}`);

@@ -13,6 +13,9 @@ const UserSchema = new mongoose.Schema({
   password: { 
     type: String, 
     required: true },
+  role: {
+    type: String
+  },
   joinedEvents: [{ 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Event'}]

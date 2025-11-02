@@ -4,7 +4,7 @@ block content
     .admin-title
         h2 Hey #{user.username}
         a.btn(href="/createevent") Create an event
-    p Dit is je email #{user.email}
+    p Email: #{user.email}
     if !events || events.length === 0
         p You don't have any events yet. Consider making one on the #[a(href="/createevent") create] page.
     else

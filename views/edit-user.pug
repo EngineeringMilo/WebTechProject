@@ -1,0 +1,24 @@
+extends userLayout
+
+block content
+    .admin-title
+        h2 View / edit user
+        form(action=`/delete-user/${user.id}?_method=DELETE`, method = "POST", )
+            input.btn-delete.btn(type="submit", value="Delete user")
+
+
+  
+    form(action=`/edit-user/${user._id}?_method=PUT`, method="POST")
+        label(for="username") #[strong Username]
+        input(type="text", placeholder="username", name="username", value=`${user.username}`)
+
+        label(for="email") #[strong Email]
+        input(type="text", placeholder="email",name = "email", value=`${user.email}`)
+
+
+        label(for="password") #[strong Password]
+        input(type="text", placeholder="new password", name="password")
+        
+        input.btn-submit(type="submit", value="Update user")
+
+    h2 Created events

@@ -749,11 +749,11 @@ body {
     --gray: #bdbdbd;
     --gray-light: #2a2a2a;
     --red: #00A36C;
-    background-color: #121212;
+    background-color: #2a2a2a;
   }
 
   body {
-    background-color: #121212;
+    background-color: #2a2a2a;
     color: var(--black);
   }
 
@@ -771,7 +771,7 @@ body {
   /* Knoppen aanpassen */
   .btn, .btn-submit {
     background-color: var(--black);
-    color: #121212;
+    color: #2a2a2a;
   }
 
   /* Deel 'share' knoppen */
@@ -785,7 +785,7 @@ body {
   }
 
   .header__nav {
-    background-color: #121212; /* zelfde als body */
+    background-color: #2a2a2a;
     border-bottom: 1px solid var(--gray-light);
   }
 

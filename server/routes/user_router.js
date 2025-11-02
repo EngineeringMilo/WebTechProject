@@ -9,8 +9,6 @@ const cookieParser = require('cookie-parser');
 
 router.use(cookieParser());
 
-const userLayout ='../views/userlayout';
-
 //check if user is logged in
 const authMiddleware = async (req,res,next) => {
     const token = req.cookies.token;
@@ -63,6 +61,10 @@ router.get('/register', async (req, res) => {
 
 router.get('/profile', authMiddleware, async (req, res) => {
     try {
+        if(req.user.role === "admin"){
+            const users = await User.find({role: 'user'});
+            return res.render('adminpage', {user: req.user, users})
+        }
         const events = await Event.find({createdBy: req.user._id});//fetch all events created by logged in user
         await req.user.populate('joinedEvents');
         res.render('profile', {user: req.user, events, joinedEvents: req.user.joinedEvents});
@@ -187,7 +189,7 @@ router.put('/edit-event/:id', authMiddleware, async (req, res) => {
     } catch (error) {
         console.log(error);
     }
-})
+});
 
 
 /**
@@ -264,13 +266,13 @@ router.post('/register', async (req,res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         try {
-            const user = await User.create({username, email, password: hashedPassword});
-            res.status(201).json({message: 'User created', user});
+            const user = await User.create({username, email, password: hashedPassword, role: "user"});
+            res.status(201).render('profile', {user});
         } catch (error) {
             if(error.code === 11000){
-                res.status(409).json({message: 'User already exists'})
-            }
-            res.status(500).json({message: 'Error on server'})
+                return res.status(409).render('register', {error: 'User already exists'})
+            };
+            res.status(500).render('register', {error: 'Error on server'});
         }
     } catch (error) {
         console.log(error);
