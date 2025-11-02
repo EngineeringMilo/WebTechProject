@@ -2,14 +2,10 @@ extends userlayout
 
 block content 
     .admin-title
-        h2 Hey #{user.username}
+        h2 Welcome back, #{user.username}
         a.btn(href="/createevent") Create an event
     p Email: #{user.email}
 
-    ul.admin-posts
-        each user in users
-            li
-                p #{user.username}
     h2 List of users
     ul.admin-posts
         each user in users
