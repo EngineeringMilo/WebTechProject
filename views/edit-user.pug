@@ -1,0 +1,39 @@
+extends userLayout
+
+block content
+    .admin-title
+        h2 View / edit user
+        form(action=`/delete-user/${user.id}?_method=DELETE`, method = "POST", )
+            input.btn-delete.btn(type="submit", value="Delete user")
+
+
+  
+    form(action=`/edit-user/${user._id}?_method=PUT`, method="POST")
+        label(for="username") #[strong Username]
+        input(type="text", placeholder="username", name="username", value=`${user.username}`)
+
+        label(for="email") #[strong Email]
+        input(type="text", placeholder="email",name = "email", value=`${user.email}`)
+
+
+        label(for="password") #[strong Password]
+        input(type="text", placeholder="new password", name="password")
+        
+        input.btn-submit(type="submit", value="Update user")
+
+    section.events
+        h2.events__heading All this users events
+        ul.admin-posts
+            each event in events
+                li
+                    //- To do link this 'link' to the correct event so when a user clicks on it
+                    //- They are led to the event page
+                    a(href=`/event/${event._id}`, class='')
+                        span #{event.title} &nearr;
+                        //- span.event-list__description #{event.description}
+                        //- span.event-list__date #{event.date.toDateString()}
+                        
+                    .admin-post-controls
+                        a.btn(href=`/edit-event/${event._id}`) Edit event 
+                        form(action=`/delete-event/${event._id}?_method=DELETE`, method = "POST")
+                            input.btn(type="submit", value="Delete event")

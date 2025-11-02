@@ -1,6 +1,6 @@
 extends layout
 
-block content
+block content  
   .welcome_text 
     h1.welcome_text__heading Hey welcome to EventLink!
     p.welcome_text__body Here you can make, find and join events.
@@ -37,5 +37,45 @@ block content
     br
     br
     hr
-    h4 Look for events on the map 
+    h4 Look for events on the map
     #map
+    script.
+      //- const events = !{JSON.stringify(events)};
+
+      //- // map to display the events
+      //- var map = L.map('map').setView([51.0543, 3.7174], 9);
+
+      //- //Layer for the map (this case its dark)
+      //- L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+      //-     minZoom: 8,
+      //-     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      //- }).addTo(map);
+
+      
+      //- for (let i = 0; i < events.length; i++) {
+      //-   var marker = L.marker(events[i].locationCoordinates).addTo(map);
+      //-   marker.bindPopup(events[i].title);
+      //- }
+      const events = !{JSON.stringify(eventsForMap)};
+
+      // Map aanmaken
+      var map = L.map('map').setView([51.0543, 3.7174], 9);
+
+      // Donkere basemap
+      L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+        minZoom: 8,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(map);
+
+      // Clusterlaag aanmaken
+      var markers = L.markerClusterGroup();
+
+      // Markers toevoegen
+      for (let i = 0; i < events.length; i++) {
+        var marker = L.marker(events[i].locationCoordinates);
+        marker.bindPopup(events[i].title);
+        markers.addLayer(marker);
+      }
+
+      // Clusterlaag toevoegen aan de map
+      map.addLayer(markers);

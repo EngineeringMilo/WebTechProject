@@ -14,6 +14,10 @@ const EventSchema = new Schema({
     type: String,
     required: true,
   },
+  locationCoordinates: {
+    type: Array,
+    required: true,
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User', // Reference to User-model
