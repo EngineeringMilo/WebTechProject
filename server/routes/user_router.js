@@ -153,7 +153,7 @@ router.post('/createevent', authMiddleware, async (req, res) => {
 router.get('/edit-event/:id', authMiddleware, async (req, res) => {
     try {
         const event = await Event.findById(req.params.id);
-        if(event.createdBy.toString() === req.user._id.toString()){
+        if(event.createdBy.toString() === req.user._id.toString() || req.user.role === "admin"){
             res.render('event-edit', {
                 event
             });

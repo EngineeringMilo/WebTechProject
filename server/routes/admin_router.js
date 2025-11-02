@@ -30,7 +30,8 @@ const authAdminMiddleware = async (req,res,next) => {
 router.get('/edit-user/:id', authAdminMiddleware, async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
-        res.render('edit-user', {user});
+        const events = await Event.find({createdBy: req.params.id})
+        res.render('edit-user', {user, events});
         
     } catch (error) {
         console.log(error);
@@ -60,5 +61,27 @@ router.put('/edit-user/:id', authAdminMiddleware, async (req, res) => {
         console.log(error);
     }
 });
+
+
+/**
+ * 
+ * DELETE/
+ * Update an existing user
+ * 
+ */
+
+
+router.delete('/delete-user/:id', authAdminMiddleware, async (req, res) => {
+  const userId = req.params.id;
+  
+  // First delete all the users events
+  await Event.deleteMany({ createdBy: userId });
+  
+  // Verwijder gebruiker
+  await User.findByIdAndDelete(userId);
+  
+  res.redirect('/profile');
+});
+
 
 module.exports = router;
