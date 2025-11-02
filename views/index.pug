@@ -73,7 +73,7 @@ block content
       // Markers toevoegen
       for (let i = 0; i < events.length; i++) {
         var marker = L.marker(events[i].locationCoordinates);
-        marker.bindPopup(events[i].title);
+        marker.bindPopup(`<a href="/event/` + events[i]._id + '">' + events[i].title);
         markers.addLayer(marker);
       }
 
