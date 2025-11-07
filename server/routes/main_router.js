@@ -121,6 +121,58 @@ router.post('/event/:id/join', eventAuthMiddleware, async (req, res) => {
 //Cookie page route
 router.get('/cookie', (req, res) => {
     res.render('cookies-page');
-})
+});
 
+// API route voor filtering met pagination
+router.get('/api/events/filter', async (req, res) => {
+  try {
+    const category = req.query.category;
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 2;
+    
+    let query = {};
+    if (category && category !== '') {
+      query.targetAudience = category;
+    }
+    
+    const events = await Event.find(query)
+      .sort({ date: -1 })
+      .skip((page - 1) * perPage)
+      .limit(perPage);
+    
+    const count = await Event.countDocuments(query);
+    const totalPages = Math.ceil(count / perPage);
+    
+    res.json({ 
+      events,
+      currentPage: page,
+      totalPages,
+      hasPrevPage: page < totalPages,
+      hasNextPage: page > 1
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
+
+// API route om alle events te krijgen (voor map) zonder pagination
+router.get('/api/events/all', async (req, res) => {
+  try {
+    const category = req.query.category;
+    
+    let query = {};
+    if (category && category !== '') {
+      query.targetAudience = category;
+    }
+    
+    const events = await Event.find(query).sort({ date: 1 });
+    
+    res.json({ events });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
 module.exports = router;

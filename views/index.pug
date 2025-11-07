@@ -7,75 +7,180 @@ block content
     p.joke_text__body A little joke to make your day a bit better
     p.joke_text__body #{joke}
 
-  //- Here we could add an image like so:
-    img(src="/img/", alt="person looking out through window", class="hero-image", width="981", height="528")
-
   section.events
-    h2.events__heading All the #{count} events
+    section.filters
+    h2.events__heading Filter on target audience of events
+    select#categorySelect
+      option(value="") All categories
+      option(value="Students") Students
+      option(value="Childeren") Childeren
+      option(value="Adults") Adults
+      option(value="Other") Other 
+    hr
     
     if events.length
-      ul.event-ul
+      //- Geef de UL een id om later te kunnen updaten via AJAX
+      ul#eventList.event-ul
         each event in events
           li
-            //-To do link this 'link' to the correct event so when a user clicks on it
-              They are led to the event page
-            a(href=`/event/${event._id}`, class='')
-              span #{event.title}
+            a(href=`/event/${event._id}`)
+              span.event-list__title #{event.title .length > 20 ? event.title.substring(0, 20) + '...' : event.title}
               span.event-list__description #{event.description.length > 80 ? event.description.substring(0, 80) + '...' : event.description}
+              span.event-list__description #{event.targetAudience}
               .share-section
                 span.event-list__date Date:
                 span.event-list__date #{event.date.toDateString()}
     else
       p No events yet. Make your very own on the #[a(href="/profile") Profile] page!
-    .nav-pagination
+
+    .nav-pagination(data-current-page=current data-total-pages=Math.ceil(count/2))
       if prevPage != null
-        a.pagination(href='/?page=' + prevPage) &lt; View older posts
+        a.pagination(href='#' data-page=prevPage) &lt; View newer posts
       else
         span.pagination-placeholder
       if nextPage != null
-        a.pagination(href='/?page=' + nextPage) View newer posts &gt;
-    br
+        a.pagination(href='#' data-page=nextPage) View older posts &gt;
+
     br
     hr
     h4 Look for events on the map
     #map
+
     script.
-      //- const events = !{JSON.stringify(events)};
-
-      //- // map to display the events
-      //- var map = L.map('map').setView([51.0543, 3.7174], 9);
-
-      //- //Layer for the map (this case its dark)
-      //- L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-      //-     minZoom: 8,
-      //-     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      //- }).addTo(map);
-
-      
-      //- for (let i = 0; i < events.length; i++) {
-      //-   var marker = L.marker(events[i].locationCoordinates).addTo(map);
-      //-   marker.bindPopup(events[i].title);
-      //- }
       const events = !{JSON.stringify(eventsForMap)};
-
-      // Map aanmaken
       var map = L.map('map').setView([51.0543, 3.7174], 9);
-
-      // Donkere basemap
       L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
         minZoom: 8,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       }).addTo(map);
-
-      // Clusterlaag aanmaken
+      
       var markers = L.markerClusterGroup();
-
-      // Markers toevoegen
       for (let i = 0; i < events.length; i++) {
         var marker = L.marker(events[i].locationCoordinates);
-        marker.bindPopup(`<a href="/event/` + events[i]._id + '">' + events[i].title);
+        marker.bindPopup(`<a href="/event/${events[i]._id}">${events[i].title}</a>`);
         markers.addLayer(marker);
       }
-
-      // Clusterlaag toevoegen aan de map
       map.addLayer(markers);
+      
+      // Houd de huidige state bij
+      const navPagination = document.querySelector('.nav-pagination');
+      let currentPage = parseInt(navPagination.dataset.currentPage) || 1;
+      let currentCategory = '';
+      
+      // Initialiseer pagination event listeners bij eerste load
+      initPaginationListeners();
+      
+      // AJAX filtering functionaliteit
+      document.getElementById('categorySelect').addEventListener('change', function() {
+        currentCategory = this.value;
+        currentPage = 1; // Reset naar eerste pagina bij nieuwe filter
+        loadEvents();
+      });
+      
+      // Functie om pagination listeners toe te voegen
+      function initPaginationListeners() {
+        document.querySelectorAll('.nav-pagination a.pagination').forEach(link => {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            currentPage = parseInt(this.dataset.page);
+            loadEvents();
+            
+            // Scroll naar boven voor betere UX
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        });
+      }
+      
+      // Functie om events te laden
+      async function loadEvents() {
+        try {
+          const response = await fetch(`/api/events/filter?category=${currentCategory}&page=${currentPage}`);
+          const data = await response.json();
+          
+          // Update de event lijst
+          const eventList = document.getElementById('eventList');
+          
+          if (data.events.length === 0) {
+            eventList.innerHTML = '<p>No events found for this category.</p>';
+          } else {
+            eventList.innerHTML = data.events.map(event => `
+              <li>
+                <a href="/event/${event._id}">
+                  <span class="event-list__title">
+                    ${event.title.length > 20 ? event.title.substring(0, 20) + '...' : event.title}
+                  </span>
+                  <span class="event-list__description">
+                    ${event.description.length > 80 ? event.description.substring(0, 80) + '...' : event.description}
+                  </span>
+                  <span class="event-list__description">${event.targetAudience}</span>
+                  <div class="share-section">
+                    <span class="event-list__date">Date:</span>
+                    <span class="event-list__date">${new Date(event.date).toDateString()}</span>
+                  </div>
+                </a>
+              </li>
+            `).join('');
+          }
+          
+          // Update pagination
+          updatePagination(data);
+          
+          // Update map markers
+          if (currentCategory === '') {
+            updateMapMarkers(events); // Gebruik originele events
+          } else {
+            // Laad alle gefilterde events voor de map
+            loadAllEventsForMap();
+          }
+          
+        } catch (error) {
+          console.error('Error loading events:', error);
+        }
+      }
+      
+      // Functie om pagination links te updaten
+      // Functie om pagination links te updaten
+      function updatePagination(data) {
+        const navPagination = document.querySelector('.nav-pagination');
+        
+        let paginationHTML = '';
+        
+        // Newer posts link (lagere page number = nieuwere posts)
+        if (data.hasNextPage) {
+          paginationHTML += `<a class="pagination" href="#" data-page="${currentPage - 1}">&lt; View newer posts</a>`;
+        } else {
+          paginationHTML += '<span class="pagination-placeholder"></span>';
+        }
+        
+        // Older posts link (hogere page number = oudere posts)
+        if (data.hasPrevPage) {
+          paginationHTML += `<a class="pagination" href="#" data-page="${currentPage + 1}">View older posts &gt;</a>`;
+        }
+        
+        navPagination.innerHTML = paginationHTML;
+        
+        // Voeg event listeners toe aan nieuwe pagination links
+        initPaginationListeners();
+      }
+      
+      // Functie om alle events voor de map te laden (zonder pagination)
+      async function loadAllEventsForMap() {
+        try {
+          const response = await fetch(`/api/events/all?category=${currentCategory}`);
+          const data = await response.json();
+          updateMapMarkers(data.events);
+        } catch (error) {
+          console.error('Error loading map events:', error);
+        }
+      }
+      
+      // Functie om map markers te updaten
+      function updateMapMarkers(filteredEvents) {
+        markers.clearLayers();
+        
+        for (let i = 0; i < filteredEvents.length; i++) {
+          var marker = L.marker(filteredEvents[i].locationCoordinates);
+          marker.bindPopup(`<a href="/event/${filteredEvents[i]._id}">${filteredEvents[i].title}</a>`);
+          markers.addLayer(marker);
+        }
+      }
