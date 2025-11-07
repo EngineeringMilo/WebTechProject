@@ -3108,3 +3108,205 @@ app.post('/events', async (req, res) => {
 ---
 
 Wil je dat ik even een compleet voorbeeld geef van een formulier met die `min`-datum en een bijhorende Express-route (inclusief validatie)? Dat kan ik kort uitschrijven.
+
+## Vraag 
+
+ik moet een third party cookie implementeren in mijn website voor mijn project hoe zou ik dat doen? Geef me een paar vb en dan hoe ik het moet implementeren in mijn express en pug site en ik heb wel al de package vanilla-cookieconsent waar dan dan de cookie preferences worden gegeven en als de cookies gereject worden dan mag die 3rd party cookie niet werken
+
+## Antwoord
+
+Haha 😄 tuurlijk — ik snap wat je bedoelt. Je wil **meer voorbeelden van third-party cookies / scripts** (niet alleen Google Analytics), en **hoe je die correct en veilig in je Express + Pug site laadt** via `vanilla-cookieconsent`.
+
+Laten we het overzichtelijk doen 👇
+
+---
+
+## 🔸 Overzicht: voorbeelden van third-party scripts/cookies
+
+| Doel            | Dienst / Script                     | Cookiecategorie             | Wat doet het               |
+| --------------- | ----------------------------------- | --------------------------- | -------------------------- |
+| Website-analyse | Google Analytics, Plausible, Matomo | `analytics`                 | Meet bezoekersstatistieken |
+| Marketing       | Facebook Pixel, TikTok Pixel        | `marketing`                 | Meet advertentieconversies |
+| Video           | YouTube, Vimeo embeds               | `media`                     | Toont externe video’s      |
+| Kaarten         | Google Maps embed                   | `media`                     | Toont locatiekaarten       |
+| Chat / support  | Intercom, Crisp, Tidio              | `functional` of `marketing` | Chat widget op site        |
+| Sociale media   | Twitter/X embeds, Instagram posts   | `media`                     | Toont sociale inhoud       |
+| A/B testing     | Hotjar, Microsoft Clarity           | `analytics`                 | Gebruikersgedrag meten     |
+
+---
+
+## 🔹 1. Facebook Pixel (marketing)
+
+### **Pug-voorbeeld**
+
+```pug
+// Facebook Pixel - alleen als marketing toegestaan is
+script(type="text/plain" data-cookiecategory="marketing").
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', 'YOUR_PIXEL_ID');
+  fbq('track', 'PageView');
+```
+
+> 🔒 `type="text/plain"` + `data-cookiecategory="marketing"` zorgt ervoor dat het script pas draait *na toestemming*.
+
+---
+
+## 🔹 2. YouTube embed (media)
+
+### **Pug-voorbeeld**
+
+```pug
+// YouTube embed
+iframe(
+  width="560"
+  height="315"
+  data-cookiecategory="media"
+  type="text/plain"
+  data-src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+  title="YouTube video"
+  frameborder="0"
+  allowfullscreen
+)
+```
+
+### **JS om video’s pas te laden bij toestemming**
+
+```js
+// in public/js/cookieconsent-init.js
+cc.run({
+  current_lang: 'nl',
+  page_scripts: true,
+  languages: { /* zoals eerder */ }
+});
+
+cc.onAccept(function(cookie) {
+  if (cc.allowedCategory('media')) {
+    document.querySelectorAll('iframe[data-cookiecategory="media"]').forEach(iframe => {
+      iframe.src = iframe.dataset.src;
+    });
+  }
+});
+```
+
+---
+
+## 🔹 3. Google Maps (media)
+
+```pug
+// Google Maps iframe
+iframe(
+  width="600"
+  height="450"
+  style="border:0"
+  type="text/plain"
+  data-cookiecategory="media"
+  data-src="https://www.google.com/maps/embed?pb=!1m18!...etc"
+  allowfullscreen
+  loading="lazy"
+)
+```
+
+Zelfde aanpak als bij YouTube → enkel laden als `media` toegestaan is.
+
+---
+
+## 🔹 4. Hotjar (analytics)
+
+### **Pug**
+
+```pug
+// Hotjar Tracking Code
+script(type="text/plain" data-cookiecategory="analytics").
+  (function(h,o,t,j,a,r){
+      h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+      h._hjSettings={hjid:YOUR_HOTJAR_ID,hjsv:6};
+      a=o.getElementsByTagName('head')[0];
+      r=o.createElement('script');r.async=1;
+      r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+      a.appendChild(r);
+  })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+```
+
+---
+
+## 🔹 5. Intercom / chat widget (functional of marketing)
+
+```pug
+// Intercom chat widget
+script(type="text/plain" data-cookiecategory="functional").
+  window.intercomSettings = { app_id: "abc123" };
+  (function(){var w=window;var ic=w.Intercom;
+  if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}
+  else{var d=document;var i=function(){i.c(arguments)};i.q=[];
+  i.c=function(args){i.q.push(args)};w.Intercom=i;
+  var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;
+  s.src='https://widget.intercom.io/widget/abc123';
+  var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};
+  if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();
+```
+
+---
+
+## 🔹 6. TikTok Pixel (marketing)
+
+```pug
+// TikTok Pixel
+script(type="text/plain" data-cookiecategory="marketing").
+  !function (w, d, t) {
+      w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
+      ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie"];
+      ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0))) }};
+      for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
+      ttq.instance=function(t){var e=ttq._i[t]||[];return e};
+      ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";
+      ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date;
+      ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");
+      o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;
+      var a=document.getElementsByTagName("script")[0];
+      a.parentNode.insertBefore(o,a)};
+      ttq.load('YOUR_TIKTOK_PIXEL_ID');
+      ttq.page();
+  }(window, document, 'ttq');
+```
+
+---
+
+## 🧠 Samenvattend
+
+Gebruik overal deze structuur:
+
+```pug
+script(type="text/plain" data-cookiecategory="naam-van-categorie").
+  // scriptinhoud van third-party code
+```
+
+En in jouw `cookieconsent-init.js`:
+
+```js
+const cc = initCookieConsent();
+cc.run({
+  current_lang: 'nl',
+  page_scripts: true,
+  languages: { ... },
+});
+
+cc.onAccept((cookie) => {
+  if (cc.allowedCategory('media')) {
+    document.querySelectorAll('iframe[data-cookiecategory="media"]').forEach(iframe => {
+      iframe.src = iframe.dataset.src;
+    });
+  }
+});
+```
+
+---
+
+Wil je dat ik je een **volledig uitgewerkt voorbeeldproject** geef met **Google Analytics + YouTube + Facebook Pixel**, dat je letterlijk kunt kopiëren, installeren en testen in Express/Pug?
+Dan maak ik die mappenstructuur + code voor je klaar zodat je alleen `npm install` hoeft te doen.

@@ -34,6 +34,10 @@ const EventSchema = new Schema({
   ticketPrice: {
     type: String,
     required: false
+  },
+  promoURL: {
+    type: String,
+    required: false
   }
 }, {
   timestamps: true // Automatic creation of createdAt & updatedAt
