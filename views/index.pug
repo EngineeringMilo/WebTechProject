@@ -19,7 +19,6 @@ block content
     hr
     
     if events.length
-      //- Geef de UL een id om later te kunnen updaten via AJAX
       ul#eventList.event-ul
         each event in events
           li
@@ -62,18 +61,17 @@ block content
       }
       map.addLayer(markers);
       
-      // Houd de huidige state bij
+      // Get current state
       const navPagination = document.querySelector('.nav-pagination');
       let currentPage = parseInt(navPagination.dataset.currentPage) || 1;
       let currentCategory = '';
       
-      // Initialiseer pagination event listeners bij eerste load
       initPaginationListeners();
       
       // AJAX filtering functionaliteit
       document.getElementById('categorySelect').addEventListener('change', function() {
         currentCategory = this.value;
-        currentPage = 1; // Reset naar eerste pagina bij nieuwe filter
+        //currentPage = 1; // Reset naar eerste pagina bij nieuwe filter
         loadEvents();
       });
       
@@ -84,9 +82,6 @@ block content
             e.preventDefault();
             currentPage = parseInt(this.dataset.page);
             loadEvents();
-            
-            // Scroll naar boven voor betere UX
-            window.scrollTo({ top: 0, behavior: 'smooth' });
           });
         });
       }
@@ -138,8 +133,6 @@ block content
         }
       }
       
-      // Functie om pagination links te updaten
-      // Functie om pagination links te updaten
       function updatePagination(data) {
         const navPagination = document.querySelector('.nav-pagination');
         

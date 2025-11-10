@@ -136,7 +136,7 @@ router.get('/api/events/filter', async (req, res) => {
     }
     
     const events = await Event.find(query)
-      .sort({ date: -1 })
+      .sort({ date: 1 })
       .skip((page - 1) * perPage)
       .limit(perPage);
     
@@ -156,8 +156,6 @@ router.get('/api/events/filter', async (req, res) => {
   }
 });
 
-
-// API route om alle events te krijgen (voor map) zonder pagination
 router.get('/api/events/all', async (req, res) => {
   try {
     const category = req.query.category;
@@ -167,7 +165,7 @@ router.get('/api/events/all', async (req, res) => {
       query.targetAudience = category;
     }
     
-    const events = await Event.find(query).sort({ date: 1 });
+    const events = await Event.find(query).sort({ date: -1 });
     
     res.json({ events });
   } catch (error) {
