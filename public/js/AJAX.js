@@ -8,7 +8,7 @@
       // AJAX filtering functionaliteit
       document.getElementById('categorySelect').addEventListener('change', function() {
         currentCategory = this.value;
-        //currentPage = 1; // Reset naar eerste pagina bij nieuwe filter
+        currentPage = 1; // Reset naar eerste pagina bij nieuwe filter
         loadEvents();
       });
       

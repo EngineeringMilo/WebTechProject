@@ -9,21 +9,21 @@ block content
 
   section.events
     section.filters
-    h2.events__heading Filter on target audience of events
-    select#categorySelect
-      option(value="") All categories
-      option(value="Students") Students
-      option(value="Childeren") Childeren
-      option(value="Adults") Adults
-      option(value="Other") Other 
-    hr
+      h2.events__heading Filter on target audience of events
+      select#categorySelect
+        option(value="") All categories
+        option(value="Students") Students
+        option(value="Childeren") Childeren
+        option(value="Adults") Adults
+        option(value="Other") Other 
+      hr
     
     if events.length
       ul#eventList.event-ul
         each event in events
           li
             a(href=`/event/${event._id}`)
-              span.event-list__title #{event.title .length > 20 ? event.title.substring(0, 20) + '...' : event.title}
+              span.event-list__title #{event.title.length > 20 ? event.title.substring(0, 20) + '...' : event.title}
               span.event-list__description #{event.description.length > 80 ? event.description.substring(0, 80) + '...' : event.description}
               span.event-list__description #{event.targetAudience}
               .share-section
@@ -33,12 +33,12 @@ block content
       p No events yet. Make your very own on the #[a(href="/profile") Profile] page!
 
     .nav-pagination(data-current-page=current data-total-pages=Math.ceil(count/2))
-      if prevPage != null
-        a.pagination(href='#' data-page=prevPage) &lt; View newer posts
+      if nextPage != null
+        a.pagination(href='#' data-page=nextPage) &lt; View earlier events
       else
         span.pagination-placeholder
-      if nextPage != null
-        a.pagination(href='#' data-page=nextPage) View older posts &gt;
+      if prevPage != null
+        a.pagination(href='#' data-page=prevPage) View later events &gt;
 
     br
     hr

@@ -35,7 +35,7 @@ router.get('', async (req, res) => {
       //Logic to display a certain amount of pages on the homepage
       let perPage = 2;
       let page = req.query.page || 1;
-      const events = await Event.aggregate([ { $sort: { date: -1 } } ])
+      const events = await Event.aggregate([ { $sort: { date: 1 } } ])
       .skip((page - 1) * perPage)
       .limit(perPage)
       .exec();
@@ -73,20 +73,19 @@ const eventAuthMiddleware = async (req,res,next) => {
     req.user = await User.findById(decoded.userID);
     user = req.user;
   } catch (err) {
-    req.user = null; // Ongeldige token? gewoon verdergaan als gast
+    req.user = null; // guest mode
   }
   next();
 }
 
-router.get('/event/:id',eventAuthMiddleware, async (req, res) => {
+router.get('/event/:id', eventAuthMiddleware, async (req, res) => {
   try { 
     const event = await Event.findById(req.params.id);
     res.render('event_page', { 
-                              user: req.user, 
-                              event});
+      user: req.user, 
+      event});
   } catch (error) {
     console.error(error);
-    //res.status(500).send('Er ging iets mis bij het ophalen van het event.');
   }
 });
 
