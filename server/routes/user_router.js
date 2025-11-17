@@ -27,6 +27,23 @@ const authMiddleware = async (req,res,next) => {
     }
 }
 
+function parseYouTubeUrl(url) {
+  if (!url) return null;
+
+  // YouTube video ID regex (detecteert diverse formats)
+  const regex = /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const match = url.match(regex);
+
+  if (!match) return null;
+
+  const videoId = match[1];
+  return {
+    id: videoId,
+    embedUrl: `https://www.youtube.com/embed/${videoId}`
+  };
+}
+
+
 
 /**
  * GET /
@@ -120,6 +137,13 @@ router.post('/createevent', authMiddleware, async (req, res) => {
         }
 
         const locCoordinates = await geocodeAddress(req.body.location);
+
+        const yt = parseYouTubeUrl(req.body.promoURL);
+        let embedURL = null
+        if(yt){
+            embedURL = yt.embedUrl;
+        }
+
         try {
             const newEvent = new Event({
                 title: req.body.title,
@@ -129,7 +153,8 @@ router.post('/createevent', authMiddleware, async (req, res) => {
                 date: req.body.date,
                 createdBy: req.user._id,
                 targetAudience: req.body.targetAudience,
-                ticketPrice: req.body.ticketPrice
+                ticketPrice: req.body.ticketPrice,
+                promoURL: embedURL
             });
 
             await Event.create(newEvent);
@@ -267,6 +292,8 @@ router.post('/register', async (req,res) => {
 
         try {
             const user = await User.create({username, email, password: hashedPassword, role: "user"});
+            const token = jwt.sign({ userID: user._id}, process.env.JWT_SECRET);
+            res.cookie('token', token, {httpOnly: true});
             res.status(201).render('profile', {user});
         } catch (error) {
             if(error.code === 11000){

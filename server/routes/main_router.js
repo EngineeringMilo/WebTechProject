@@ -73,20 +73,19 @@ const eventAuthMiddleware = async (req,res,next) => {
     req.user = await User.findById(decoded.userID);
     user = req.user;
   } catch (err) {
-    req.user = null; // Ongeldige token? gewoon verdergaan als gast
+    req.user = null; // guest mode
   }
   next();
 }
 
-router.get('/event/:id',eventAuthMiddleware, async (req, res) => {
+router.get('/event/:id', eventAuthMiddleware, async (req, res) => {
   try { 
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(req.params.id).populate('createdBy');
     res.render('event_page', { 
-                              user: req.user, 
-                              event});
+      user: req.user, 
+      event});
   } catch (error) {
     console.error(error);
-    //res.status(500).send('Er ging iets mis bij het ophalen van het event.');
   }
 });
 
@@ -121,6 +120,56 @@ router.post('/event/:id/join', eventAuthMiddleware, async (req, res) => {
 //Cookie page route
 router.get('/cookie', (req, res) => {
     res.render('cookies-page');
-})
+});
 
+// API route for filtering with pagination
+router.get('/api/events/filter', async (req, res) => {
+  try {
+    const category = req.query.category;
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 2;
+    
+    let query = {};
+    if (category && category !== '') {
+      query.targetAudience = category;
+    }
+    
+    const events = await Event.find(query)
+      .sort({ date: 1 })
+      .skip((page - 1) * perPage)
+      .limit(perPage);
+    
+    const count = await Event.countDocuments(query);
+    const totalPages = Math.ceil(count / perPage);
+    
+    res.json({ 
+      events,
+      currentPage: page,
+      totalPages,
+      hasPrevPage: page < totalPages,
+      hasNextPage: page > 1
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
+router.get('/api/events/all', async (req, res) => {
+  try {
+    const category = req.query.category;
+    
+    let query = {};
+    if (category && category !== '') {
+      query.targetAudience = category;
+    }
+    
+    const events = await Event.find(query).sort({ date: 1 });
+    
+    res.json({ events });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
 module.exports = router;

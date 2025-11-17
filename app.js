@@ -13,7 +13,7 @@ const methodOverride = require('method-override');
 
 //Setting up the express app
 const app = express();
-const PORT = 3000 || process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 //Connecting to the MongoDB
 connectDB();

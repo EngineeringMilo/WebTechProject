@@ -20,11 +20,17 @@ block content
         input(type="date", placeholder="Date of your event", name="date",value=`${event.date.toISOString().slice(0,10)}`)
 
         label(for="targetAudience") #[strong What is the target audience of your event?]
-        input(type="text", placeholder="There is no target audience given for your event.", name="targetAudience",value= event.targetAudience || '')
+        select(name="targetAudience", value= event.targetAudience, required)
+            option(value="Students") Students
+            option(value="Childeren") Childeren
+            option(value="Adults") Adults
+            option(value="Other") Other 
 
         label(for="ticketPrice") #[strong What is the ticket price of your event?]
         input(type="number", placeholder="There is no ticket price given for your event.", name="ticketPrice",min="0", step="0.01",value=`${event.ticketPrice}`)
 
+        label(for="promoURL") Upload a youtube URL to your promotion video (optional)
+        input(type="url", placeholder="Enter youtube URL", name="promoURL", value=`${event.promoURL}`)
 
         label(for="description") #[strong Description of your event]
         textarea(name="description", placeholder="Update the description of your event" cols="50", rows="10") #{event.description}
