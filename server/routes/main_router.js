@@ -122,7 +122,7 @@ router.get('/cookie', (req, res) => {
     res.render('cookies-page');
 });
 
-// API route voor filtering met pagination
+// API route for filtering with pagination
 router.get('/api/events/filter', async (req, res) => {
   try {
     const category = req.query.category;

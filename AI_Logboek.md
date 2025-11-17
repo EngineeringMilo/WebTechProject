@@ -4125,3 +4125,122 @@ div.video-container(data-src="https://www.youtube.com/embed/VIDEO_ID")
 Als je wilt, kan ik een **compleet werkend voorbeeld maken** voor jouw EventLink homepage waarin zowel **video embeds als kaart markers** alleen geladen worden na toestemming van cookies. Dat is de meest veilige en gebruiksvriendelijke implementatie.
 
 Wil je dat ik dat doe?
+
+
+## Vraag
+
+Dit is mijn ajax script extends layout
+block content  
+  .welcome_text 
+    h1.welcome_text__heading Hey welcome to EventLink!
+    p.welcome_text__body Here you can make, find and join events.
+    p.joke_text__body A little joke to make your day a bit better
+    p.joke_text__body #{joke}
+  section.events
+    section.filters
+    h2.events__heading Filter on target audience of events
+    select#categorySelect
+      option(value="") All categories
+      option(value="Students") Students
+      option(value="Childeren") Childeren
+      option(value="Adults") Adults
+      option(value="Other") Other 
+    hr
+    
+    if events.length
+      ul#eventList.event-ul
+        each event in events
+          li
+            a(href/event/${event._id})
+              span.event-list__title #{event.title .length > 20 ? event.title.substring(0, 20) + '...' : event.title}
+              span.event-list__description #{event.description.length > 80 ? event.description.substring(0, 80) + '...' : event.description}
+              span.event-list__description #{event.targetAudience}
+              .share-section
+                span.event-list__date Date:
+                span.event-list__date #{event.date.toDateString()}
+    else
+      p No events yet. Make your very own on the #[a(href="/profile") Profile] page!
+    .nav-pagination(data-current-page=current data-total-pages=Math.ceil(count/2))
+      if prevPage != null
+        a.pagination(href='#' data-page=prevPage) &lt; View newer posts
+      else
+        span.pagination-placeholder
+      if nextPage != null
+        a.pagination(href='#' data-page=nextPage) View older posts &gt;
+    br
+    hr
+    h4 Look for events on the map
+    #map
+    script(src="/js/AJAX.js")
+    //- Inline script is needed here because we get the eventsForMap passed by our server 
+    script.
+      const events = !{JSON.stringify(eventsForMap)};
+      var map = L.map('map').setView([51.0543, 3.7174], 9);
+      L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+        minZoom: 8,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(map);
+      
+      var markers = L.markerClusterGroup();
+      for (let i = 0; i < events.length; i++) {
+        var marker = L.marker(events[i].locationCoordinates);
+        marker.bindPopup<a href="/event/${events[i]._id}">${events[i].title}</a>);
+        markers.addLayer(marker);
+      }
+      map.addLayer(markers);
+
+Dit is mijn pug script voor mijn pagina en dit is mijn router
+
+## Antwoord
+
+Ik zie een paar problemen in je code die de AJAX-functionaliteit kunnen breken. Hier zijn de belangrijkste issues en oplossingen:
+
+## Problemen die ik zie:
+
+### 1. **Pug Template Syntax Errors**
+Je Pug template heeft meerdere syntax fouten:
+- `a(href` mist een `=` → moet `a(href=` zijn
+- `#{event.title .length` heeft een spatie voor `.length`
+- Template literals in inline script missen backticks
+
+### 2. **Pagination Logica Is Omgekeerd**
+In je router:
+```javascript
+const prevPage = parseInt(page) + 1;  // Dit zou "older" moeten zijn
+const nextPage = parseInt(page) - 1;  // Dit zou "newer" moeten zijn
+```
+
+Maar in je AJAX:
+```javascript
+if (data.hasNextPage) {
+  paginationHTML += `<a class="pagination" href="#" data-page="${currentPage - 1}">&lt; View earlier events</a>`;
+}
+```
+
+De logica is inconsistent tussen server-side en client-side.
+
+### 3. **Sort Order Conflict**
+- Server-side (homepage): `{ $sort: { date: -1 } }` (nieuwste eerst)
+- AJAX endpoint: `.sort({ date: 1 })` (oudste eerst)
+
+## Oplossingen:## Samenvatting van de belangrijkste fixes:
+
+### 1. **Pug Template Syntax**
+- `a(href` → `a(href=` met backticks voor template literals
+- Spatie verwijderd in `#{event.title.length`
+- Backticks toegevoegd in inline script voor `marker.bindPopup`
+
+### 2. **Consistente Pagination Logica**
+- Lagere page numbers = nieuwere posts
+- Hogere page numbers = oudere posts
+- Zelfde logica in zowel server-side als client-side
+
+### 3. **Sort Order**
+- Beide endpoints gebruiken nu `{ date: -1 }` (nieuwste eerst)
+- Consistent door hele applicatie
+
+### 4. **Extra Verbeteringen**
+- `currentPage = 1` uncommented in category select handler (reset naar eerste pagina bij filter)
+- `currentPage` wordt nu opgeslagen in `dataset.currentPage` voor betere state management
+
+Test je applicatie nu en de AJAX-functionaliteit zou correct moeten werken! 🎉
