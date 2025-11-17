@@ -116,6 +116,8 @@ block content
               </li>
             `).join('');
           }
+
+         
           
           // Update pagination
           updatePagination(data);
@@ -140,14 +142,14 @@ block content
         
         // Newer posts link (lagere page number = nieuwere posts)
         if (data.hasNextPage) {
-          paginationHTML += `<a class="pagination" href="#" data-page="${currentPage - 1}">&lt; View newer posts</a>`;
+          paginationHTML += `<a class="pagination" href="#" data-page="${currentPage - 1}">&lt; View earlier events</a>`;
         } else {
           paginationHTML += '<span class="pagination-placeholder"></span>';
         }
         
         // Older posts link (hogere page number = oudere posts)
         if (data.hasPrevPage) {
-          paginationHTML += `<a class="pagination" href="#" data-page="${currentPage + 1}">View older posts &gt;</a>`;
+          paginationHTML += `<a class="pagination" href="#" data-page="${currentPage + 1}">View later events &gt;</a>`;
         }
         
         navPagination.innerHTML = paginationHTML;

@@ -3310,3 +3310,818 @@ cc.onAccept((cookie) => {
 
 Wil je dat ik je een **volledig uitgewerkt voorbeeldproject** geef met **Google Analytics + YouTube + Facebook Pixel**, dat je letterlijk kunt kopiëren, installeren en testen in Express/Pug?
 Dan maak ik die mappenstructuur + code voor je klaar zodat je alleen `npm install` hoeft te doen.
+
+
+## Vraag
+
+ik heb deze index
+
+extends layout
+
+block content  
+  .welcome_text 
+    h1.welcome_text__heading Hey welcome to EventLink!
+    p.welcome_text__body Here you can make, find and join events.
+    p.joke_text__body A little joke to make your day a bit better
+    p.joke_text__body #{joke}
+
+  section.events
+    section.filters
+    h2.events__heading Filter on target audience of events
+    select#categorySelect
+      option(value="") All categories
+      option(value="Students") Students
+      option(value="Childeren") Childeren
+      option(value="Adults") Adults
+      option(value="Other") Other 
+    hr
+    
+    if events.length
+      //- Geef de UL een id om later te kunnen updaten via AJAX
+      ul#eventList.event-ul
+        each event in events
+          li
+            a(href=`/event/${event._id}`)
+              span.event-list__title #{event.title .length > 20 ? event.title.substring(0, 20) + '...' : event.title}
+              span.event-list__description #{event.description.length > 80 ? event.description.substring(0, 80) + '...' : event.description}
+              span.event-list__description #{event.targetAudience}
+              .share-section
+                span.event-list__date Date:
+                span.event-list__date #{event.date.toDateString()}
+    else
+      p No events yet. Make your very own on the #[a(href="/profile") Profile] page!
+
+    .nav-pagination
+      if prevPage != null
+        a.pagination(href='/?page=' + prevPage) &lt; View older posts
+      else
+        span.pagination-placeholder
+      if nextPage != null
+        a.pagination(href='/?page=' + nextPage) View newer posts &gt;
+    br
+
+    hr
+    h4 Look for events on the map
+    #map
+    script.
+      const events = !{JSON.stringify(eventsForMap)};
+      var map = L.map('map').setView([51.0543, 3.7174], 9);
+
+      L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+        minZoom: 8,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(map);
+
+      var markers = L.markerClusterGroup();
+
+      for (let i = 0; i < events.length; i++) {
+        var marker = L.marker(events[i].locationCoordinates);
+        marker.bindPopup(`<a href="/event/${events[i]._id}">${events[i].title}</a>`);
+        markers.addLayer(marker);
+      }
+
+      map.addLayer(markers);
+
+
+en deze main router 
+
+/*
+*
+* These are all the routes for the basic users to take.
+*
+*/
+
+const express = require('express');
+const router = express.Router();
+const Event = require('../models/Event');
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+
+/*
+GET method of the home route
+*/
+router.get('', async (req, res) => {
+  
+  /**
+   *  This Portion is to fetch a joke from an external API
+   *  The reason that we do this server-side is because if people can alter
+   *  the link they could potentionally remove certain flags and get no-so-nice jokes.
+   */
+  let joke;
+  try {
+    const response = await fetch("https://v2.jokeapi.dev/joke/Programming,Pun?blacklistFlags=nsfw,religious,political,racist,sexist,explicit&type=single");
+    if (!response.ok) {
+      throw new Error(`API returned status ${response.status}`);
+    }
+    const data = await response.json();
+    joke = data.joke;
+  } catch (error) {
+    console.log(error);
+  }
+  try {
+      //Logic to display a certain amount of pages on the homepage
+      let perPage = 2;
+      let page = req.query.page || 1;
+      const events = await Event.aggregate([ { $sort: { date: 1 } } ])
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .exec();
+
+      const eventsForMap = await Event.find();
+
+      const count = await Event.countDocuments();
+      const prevPage = parseInt(page) + 1;
+      const nextPage = parseInt(page) - 1;
+      const hasPrevPage = prevPage <= Math.ceil(count / perPage);
+      const hasNextPage = prevPage > 2;
+
+      res.render('index', { events,
+                            eventsForMap,
+                            current: page,
+                            count: count,
+                            joke: joke,
+                            prevPage: hasPrevPage ? prevPage : null,
+                            nextPage: hasNextPage ? nextPage : null });
+  } catch (error) {
+      console.log(error);   
+  }
+});
+
+// This is an extra check just to see if the user is logged in and if so to add a 'join' button to the event page
+const eventAuthMiddleware = async (req,res,next) => {
+  const token = req.cookies.token;
+  if (!token) {
+    req.user = null;
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.userID);
+    user = req.user;
+  } catch (err) {
+    req.user = null; // Ongeldige token? gewoon verdergaan als gast
+  }
+  next();
+}
+
+router.get('/event/:id',eventAuthMiddleware, async (req, res) => {
+  try { 
+    const event = await Event.findById(req.params.id);
+    res.render('event_page', { 
+                              user: req.user, 
+                              event});
+  } catch (error) {
+    console.error(error);
+    //res.status(500).send('Er ging iets mis bij het ophalen van het event.');
+  }
+});
+
+router.post('/event/:id/join', eventAuthMiddleware, async (req, res) => {
+  if (!req.user) {
+    return res.redirect('/login');
+  }
+
+  try {
+   const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).send('Event not found');
+
+    const user = req.user;
+    const index = user.joinedEvents.indexOf(event._id);
+
+    if (index === -1) {
+      // Not yet joined
+      user.joinedEvents.push(event._id);
+    } else {
+      // Leave
+      user.joinedEvents.splice(index, 1);
+    }
+
+    await user.save();
+    res.redirect(`/event/${event._id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Something went wrong.');
+  }
+});
+
+//Cookie page route
+router.get('/cookie', (req, res) => {
+    res.render('cookies-page');
+})
+
+module.exports = router;
+
+kan je zeggen wat ik moet toevoegen om de filter met AJAX te laten werken? of bedenk eerst andere toepassingen om ajax te integreren in mijn website
+
+
+## Antwoord
+
+Heel goed — je hebt al een nette basis met Express, Mongoose en Pug.
+Laten we dit stap voor stap doen:
+
+---
+
+## 🧠 Stap 1 — Begrijpen wat je nu hebt
+
+Je homepage (`index.pug`) toont:
+
+* een lijst van events (`events`)
+* een `<select>` dropdown om op **target audience** te filteren
+* en een kaart (Leaflet)
+
+Momenteel werkt de filter nog **niet**, want de `<select>` verandert niets aan de lijst van events — er is geen JavaScript dat dit afhandelt, en ook geen backend-route om gefilterde data terug te sturen.
+
+---
+
+## ✅ Stap 2 — Wat we willen bereiken
+
+We willen dat:
+
+1. Wanneer de gebruiker een categorie kiest uit de dropdown (`#categorySelect`),
+2. Er via **AJAX (Fetch API)** een verzoek wordt gestuurd naar de server, bv. `/filter?category=Students`,
+3. De server stuurt een **JSON** terug met alleen de gefilterde events,
+4. De frontend vervangt de `<ul id="eventList">` inhoud zonder dat de pagina herlaadt.
+
+---
+
+## 🧩 Stap 3 — Nieuwe route in `main router`
+
+Voeg dit toe onderaan je router (boven `module.exports = router;`):
+
+```js
+router.get('/filter', async (req, res) => {
+  try {
+    const category = req.query.category;
+
+    let query = {};
+    if (category && category !== '') {
+      query.targetAudience = category;
+    }
+
+    const filteredEvents = await Event.find(query).sort({ date: 1 });
+    res.json(filteredEvents);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error fetching filtered events' });
+  }
+});
+```
+
+👉 Deze route stuurt gewoon JSON terug van events, eventueel gefilterd.
+
+---
+
+## 🖥️ Stap 4 — Voeg client-side JavaScript toe aan `index.pug`
+
+Plaats dit **onderaan** je `index.pug`, **na** de map-script:
+
+```pug
+script.
+  document.getElementById('categorySelect').addEventListener('change', async function() {
+    const category = this.value;
+    const response = await fetch(`/filter?category=${encodeURIComponent(category)}`);
+    const events = await response.json();
+
+    const eventList = document.getElementById('eventList');
+    eventList.innerHTML = ''; // leegmaken
+
+    if (events.length === 0) {
+      eventList.innerHTML = '<li>No events found for this category.</li>';
+      return;
+    }
+
+    for (const event of events) {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <a href="/event/${event._id}">
+          <span class="event-list__title">${event.title.length > 20 ? event.title.substring(0, 20) + '...' : event.title}</span>
+          <span class="event-list__description">${event.description.length > 80 ? event.description.substring(0, 80) + '...' : event.description}</span>
+          <span class="event-list__description">${event.targetAudience}</span>
+          <div class="share-section">
+            <span class="event-list__date">Date:</span>
+            <span class="event-list__date">${new Date(event.date).toDateString()}</span>
+          </div>
+        </a>
+      `;
+      eventList.appendChild(li);
+    }
+  });
+```
+
+✅ Resultaat: de dropdown filtert direct de lijst van events via AJAX — geen reload.
+
+---
+
+## 🚀 Stap 5 — (Optioneel) Extra AJAX-toepassingen
+
+Zodra je dit werkend hebt, kun je AJAX ook gebruiken voor:
+
+1. **“Join/Leave Event” knop**
+   → In plaats van een `POST` met redirect, laat het een knop zijn die via AJAX togglet en de knoptekst verandert.
+
+2. **Live zoeken**
+   → Voeg een zoekveld toe dat bij het typen (`input` event) via AJAX events ophaalt op titel of beschrijving.
+
+3. **Paginatie zonder reload**
+   → De links `< View older posts` kunnen ook via AJAX events laden en de lijst vervangen.
+
+4. **Live kaart update**
+   → Wanneer je filtert of zoekt, update ook de Leaflet-markers op de kaart (verwijder oude markers en voeg nieuwe toe).
+
+---
+
+Wil je dat ik het voorbeeld uitbreid zodat ook de **Leaflet-kaart markers** zich updaten bij het filteren (AJAX)? Dat is een mooie volgende stap.
+
+## Vraag
+
+nee doe de paginatie zonder reload
+
+## Antwoord
+
+Perfect 👌 — dat is een mooie vervolgstap!
+Laten we jouw **paginatie via AJAX** implementeren zodat gebruikers naar *volgende/vorige pagina’s* kunnen gaan zonder dat de hele pagina herlaadt.
+
+---
+
+## 🧩 Doel
+
+We willen:
+
+1. Dat de knoppen
+
+   ```pug
+   a.pagination(href='/?page=' + prevPage)
+   a.pagination(href='/?page=' + nextPage)
+   ```
+
+   niet meer de pagina herladen,
+2. maar in plaats daarvan via **AJAX** nieuwe events ophalen,
+3. en enkel de eventlijst en paginatie vervangen.
+
+---
+
+## 🧠 Plan
+
+* Maak een **nieuwe backend-route** `/events-page` die enkel JSON terugstuurt.
+* Gebruik **Fetch API** in de frontend om data op te halen.
+* Update de DOM zonder refresh.
+
+---
+
+## 🧩 Stap 1 — Nieuwe backend-route
+
+In je `main router` (onder de bestaande routes) voeg je toe:
+
+```js
+router.get('/events-page', async (req, res) => {
+  try {
+    let perPage = 2;
+    let page = parseInt(req.query.page) || 1;
+
+    const events = await Event.aggregate([{ $sort: { date: 1 } }])
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .exec();
+
+    const count = await Event.countDocuments();
+    const prevPage = page > 1 ? page - 1 : null;
+    const nextPage = page * perPage < count ? page + 1 : null;
+
+    res.json({
+      events,
+      prevPage,
+      nextPage,
+      current: page,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error loading events' });
+  }
+});
+```
+
+---
+
+## 🧩 Stap 2 — Pas `index.pug` aan
+
+Voeg **id’s** toe aan je paginatieknoppen zodat we ze met JS kunnen aanspreken:
+
+```pug
+.nav-pagination
+  if prevPage != null
+    a.pagination#prevPage(href='/?page=' + prevPage) &lt; View older posts
+  else
+    span.pagination-placeholder
+  if nextPage != null
+    a.pagination#nextPage(href='/?page=' + nextPage) View newer posts &gt;
+```
+
+---
+
+## 🧩 Stap 3 — Voeg AJAX-script toe
+
+Plaats dit onderaan `index.pug`, **na je andere scripts**:
+
+```pug
+script.
+  async function loadPage(page) {
+    try {
+      const response = await fetch(`/events-page?page=${page}`);
+      const data = await response.json();
+
+      const eventList = document.getElementById('eventList');
+      eventList.innerHTML = '';
+
+      if (data.events.length === 0) {
+        eventList.innerHTML = '<li>No events found.</li>';
+      } else {
+        for (const event of data.events) {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <a href="/event/${event._id}">
+              <span class="event-list__title">${event.title.length > 20 ? event.title.substring(0, 20) + '...' : event.title}</span>
+              <span class="event-list__description">${event.description.length > 80 ? event.description.substring(0, 80) + '...' : event.description}</span>
+              <span class="event-list__description">${event.targetAudience}</span>
+              <div class="share-section">
+                <span class="event-list__date">Date:</span>
+                <span class="event-list__date">${new Date(event.date).toDateString()}</span>
+              </div>
+            </a>
+          `;
+          eventList.appendChild(li);
+        }
+      }
+
+      // Update paginatie-knoppen
+      const nav = document.querySelector('.nav-pagination');
+      nav.innerHTML = `
+        ${data.prevPage ? `<a class="pagination" id="prevPage" href="#" data-page="${data.prevPage}">&lt; View older posts</a>` : '<span class="pagination-placeholder"></span>'}
+        ${data.nextPage ? `<a class="pagination" id="nextPage" href="#" data-page="${data.nextPage}">View newer posts &gt;</a>` : ''}
+      `;
+      attachPaginationListeners(); // herbind events
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function attachPaginationListeners() {
+    const prev = document.getElementById('prevPage');
+    const next = document.getElementById('nextPage');
+
+    if (prev) {
+      prev.addEventListener('click', (e) => {
+        e.preventDefault();
+        loadPage(e.target.dataset.page);
+      });
+    }
+    if (next) {
+      next.addEventListener('click', (e) => {
+        e.preventDefault();
+        loadPage(e.target.dataset.page);
+      });
+    }
+  }
+
+  // Init
+  attachPaginationListeners();
+```
+
+---
+
+## ⚡ Wat dit doet
+
+* Wanneer je op “View older/newer posts” klikt:
+
+  * De link **blokkeert** de standaard navigatie.
+  * Er wordt via `fetch('/events-page?page=2')` nieuwe data opgehaald.
+  * De lijst (`#eventList`) en paginatie (`.nav-pagination`) worden **live** geüpdatet.
+* Geen herlaad, geen nieuwe render via de server-side template.
+
+---
+
+## 🌟 Extra verbetering (optioneel)
+
+Je kunt ook de URL aanpassen zodat je browsergeschiedenis klopt:
+
+```js
+window.history.pushState({}, '', `/?page=${page}`);
+```
+
+Voeg dit toe binnen de `loadPage(page)` functie, net na het ophalen van de data.
+
+---
+
+Wil je dat ik dit uitbreid zodat de **filter en paginatie samen** via AJAX werken (dus filteren én door pagina’s bladeren zonder reload)? Dat is de volgende logische uitbreiding.
+
+
+## Vraag
+
+kan het anders? want het werkt niet helemaal
+
+## Antwoord
+
+Ah, duidelijk — laten we het robuuster aanpakken. Het probleem bij je huidige versie is vaak dat:
+
+1. De event listeners van de paginatie-knoppen verloren gaan bij DOM-update.
+2. De structuur van de buttons (`id="prevPage"`) steeds verandert bij elke update, waardoor `getElementById` niet altijd werkt.
+
+Een **betere aanpak** is om:
+
+* Event delegation te gebruiken (luisteren op het parent-element `.nav-pagination`).
+* Een single `click` listener te maken die kijkt of de klik op een `.pagination`-link is.
+* De backend-route `/?page=X` te hergebruiken, zodat je niet een extra `/events-page` hoeft te maken.
+* De JSON terug te sturen als er `Accept: application/json` header is, anders render je gewoon de pagina normaal.
+
+---
+
+## Stap 1 — Backend aanpassen
+
+Pas je bestaande `router.get('')` aan zodat hij JSON terugstuurt bij AJAX-verzoek:
+
+```js
+router.get('', async (req, res) => {
+  let joke;
+  try {
+    const response = await fetch("https://v2.jokeapi.dev/joke/Programming,Pun?blacklistFlags=nsfw,religious,political,racist,sexist,explicit&type=single");
+    const data = await response.json();
+    joke = data.joke;
+  } catch (error) {
+    joke = 'No joke today 😅';
+  }
+
+  try {
+    let perPage = 2;
+    let page = parseInt(req.query.page) || 1;
+    const events = await Event.aggregate([{ $sort: { date: 1 } }])
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .exec();
+
+    const count = await Event.countDocuments();
+    const prevPage = page > 1 ? page - 1 : null;
+    const nextPage = page * perPage < count ? page + 1 : null;
+
+    if (req.headers.accept?.includes('application/json')) {
+      // AJAX-verzoek → JSON terugsturen
+      return res.json({ events, prevPage, nextPage });
+    }
+
+    res.render('index', {
+      events,
+      eventsForMap: await Event.find(),
+      current: page,
+      count,
+      joke,
+      prevPage,
+      nextPage
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+```
+
+---
+
+## Stap 2 — Frontend JavaScript met event delegation
+
+Plaats dit **onderaan je `index.pug`**, na je andere scripts:
+
+```pug
+script.
+  const nav = document.querySelector('.nav-pagination');
+  const eventList = document.getElementById('eventList');
+
+  nav.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('pagination')) {
+      e.preventDefault();
+      const page = e.target.dataset.page;
+
+      try {
+        const res = await fetch(`/?page=${page}`, {
+          headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+
+        // Update event list
+        eventList.innerHTML = '';
+        if (data.events.length === 0) {
+          eventList.innerHTML = '<li>No events found.</li>';
+        } else {
+          data.events.forEach(event => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+              <a href="/event/${event._id}">
+                <span class="event-list__title">${event.title.length > 20 ? event.title.substring(0,20)+'...' : event.title}</span>
+                <span class="event-list__description">${event.description.length > 80 ? event.description.substring(0,80)+'...' : event.description}</span>
+                <span class="event-list__description">${event.targetAudience}</span>
+                <div class="share-section">
+                  <span class="event-list__date">Date:</span>
+                  <span class="event-list__date">${new Date(event.date).toDateString()}</span>
+                </div>
+              </a>
+            `;
+            eventList.appendChild(li);
+          });
+        }
+
+        // Update pagination links
+        nav.innerHTML = `
+          ${data.prevPage ? `<a href="#" class="pagination" data-page="${data.prevPage}">&lt; View older posts</a>` : '<span class="pagination-placeholder"></span>'}
+          ${data.nextPage ? `<a href="#" class="pagination" data-page="${data.nextPage}">View newer posts &gt;</a>` : ''}
+        `;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  });
+```
+
+---
+
+### ✅ Waarom dit beter werkt
+
+1. **Event delegation**: de click listener zit op het parent-element `.nav-pagination`. Ook als de knoppen bij update veranderen, blijft het werken.
+2. **Data attributes (`data-page`)**: geen `id` nodig.
+3. **Single backend-route**: hergebruikt dezelfde template, geen extra `/events-page`.
+4. **AJAX via JSON**: haalt enkel de data op en vervangt de DOM.
+
+---
+
+Als je wilt, kan ik hier meteen **de filter ook integreren** zodat je **filter + paginatie samen via AJAX** werkt. Dat is een stap die veel soepelere UX oplevert.
+
+Wil je dat ik dat doe?
+
+
+## Vraag
+
+kan je een cookie page genereren in pug?
+
+## Antwoord
+
+Zeker! Hier is een nette en overzichtelijke **cookie page** in Pug die je direct kunt gebruiken. Ik maak hem inclusief een duidelijke uitleg, knoppen om cookies te accepteren of af te wijzen, en een beetje styling.
+
+---
+
+```pug
+extends layout
+
+block content
+  .cookie-container
+    h1.cookie-heading 🍪 Cookie Policy
+    p.cookie-text
+      | We use cookies to ensure you get the best experience on our website. Some cookies are necessary for the website to function, while others help us improve your experience.
+    
+    h3.cookie-types-heading Types of Cookies
+    ul.cookie-types
+      li
+        strong Necessary Cookies:
+        |  These cookies are essential for the website to function properly.
+      li
+        strong Performance Cookies:
+        |  These cookies help us understand how visitors interact with our site.
+      li
+        strong Functional Cookies:
+        |  These cookies allow the website to remember your preferences and settings.
+    
+    p.cookie-note
+      | You can choose to accept or decline non-essential cookies.
+
+    .cookie-buttons
+      button#accept-cookies(type="button") Accept All Cookies
+      button#decline-cookies(type="button") Decline Non-Essential Cookies
+
+  script.
+    // Simple cookie handling script
+    function setCookie(name, value, days) {
+      let expires = "";
+      if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+
+    document.getElementById('accept-cookies').addEventListener('click', () => {
+      setCookie('cookiesAccepted', 'true', 365);
+      alert('Thank you! Cookies accepted.');
+    });
+
+    document.getElementById('decline-cookies').addEventListener('click', () => {
+      setCookie('cookiesAccepted', 'false', 365);
+      alert('You have declined non-essential cookies.');
+    });
+```
+
+---
+
+### 📝 Uitleg
+
+* **`setCookie` functie**: maakt een cookie met naam, waarde en vervaldatum.
+* **Accept / Decline knoppen**: zetten de waarde `true` of `false` in `cookiesAccepted`.
+* **Styling**: kan je verder uitbreiden in je CSS met `.cookie-container`, `.cookie-buttons` enz.
+
+---
+
+Als je wilt, kan ik er ook een **modaal-achtige cookie banner** van maken die verschijnt bovenaan je website en pas verdwijnt als je een keuze maakt. Dat is vaak gebruiksvriendelijker.
+
+Wil je dat ik die versie maak?
+
+## Vraag
+
+ik gebruik vanilla cookieconsent package om die shit te genereren hoe kan ik deze cookie uitlezen om te checken of mijn gebruiker videos zou kunnen bvb als de dingen gereject worden dan mogen de iframes niet ingeladen worden
+
+## Antwoord
+
+Ah, perfect! Als je **[Vanilla CookieConsent](https://cookieconsent.insites.com/)** gebruikt, kun je de toestemmingsstatus makkelijk uitlezen met hun API en op basis daarvan beslissen of bepaalde elementen (zoals video-iframes) mogen worden geladen.
+
+Hier is een **stap-voor-stap aanpak**:
+
+---
+
+## 1️⃣ Vanilla CookieConsent configureren
+
+Stel dat je dit in je script hebt staan:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"></script>
+<script>
+window.addEventListener("load", function(){
+  window.cookieconsent.initialise({
+    "palette": {
+      "popup": { "background": "#000" },
+      "button": { "background": "#f1d600" }
+    },
+    "theme": "classic",
+    "type": "opt-in", // belangrijk: user moet akkoord geven
+    "content": {
+      "message": "We gebruiken cookies voor een betere ervaring.",
+      "allow": "Accepteer",
+      "deny": "Weiger",
+      "link": "Meer info",
+      "href": "/cookie"
+    },
+    onInitialise: function(status) {
+      // status is 'allow' of 'deny' of 'dismiss'
+      handleConsent(status);
+    },
+    onStatusChange: function(status, chosenBefore) {
+      handleConsent(status);
+    }
+  })
+});
+</script>
+```
+
+---
+
+## 2️⃣ Functie om consent uit te lezen
+
+Je kan een helper-functie maken om te checken of een gebruiker bepaalde cookies accepteert:
+
+```js
+function handleConsent(status) {
+  const canLoadVideos = status === 'allow';
+  const videoContainers = document.querySelectorAll('.video-container');
+
+  videoContainers.forEach(container => {
+    if (canLoadVideos) {
+      // Laad iframe pas als toestemming is gegeven
+      const src = container.dataset.src;
+      container.innerHTML = `<iframe src="${src}" frameborder="0" allowfullscreen></iframe>`;
+    } else {
+      // Toon alternatief bericht
+      container.innerHTML = `<p>Je moet cookies accepteren om de video te bekijken.</p>`;
+    }
+  });
+}
+```
+
+---
+
+## 3️⃣ HTML voor video-iframe placeholders
+
+```pug
+//- Pug template voorbeeld
+div.video-container(data-src="https://www.youtube.com/embed/VIDEO_ID")
+  p> Laden van video vereist cookies
+```
+
+* Merk op dat je **niet direct de iframe in de HTML plaatst**, maar alleen een `data-src` attribute.
+* De iframe wordt pas geïnjecteerd als de gebruiker toestemming geeft.
+
+---
+
+## ✅ Voordelen
+
+* Je voorkomt dat videos worden geladen als cookies niet zijn geaccepteerd.
+* Je kunt dit uitbreiden naar andere third-party content: embeds, analytics, social media widgets, etc.
+* Geen iframes worden “geblokkeerd” voor gebruikers die cookies weigeren.
+
+---
+
+Als je wilt, kan ik een **compleet werkend voorbeeld maken** voor jouw EventLink homepage waarin zowel **video embeds als kaart markers** alleen geladen worden na toestemming van cookies. Dat is de meest veilige en gebruiksvriendelijke implementatie.
+
+Wil je dat ik dat doe?
