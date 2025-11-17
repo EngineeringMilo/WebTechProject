@@ -80,7 +80,7 @@ const eventAuthMiddleware = async (req,res,next) => {
 
 router.get('/event/:id', eventAuthMiddleware, async (req, res) => {
   try { 
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(req.params.id).populate('createdBy');
     res.render('event_page', { 
       user: req.user, 
       event});

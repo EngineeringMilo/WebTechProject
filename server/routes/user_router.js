@@ -144,7 +144,6 @@ router.post('/createevent', authMiddleware, async (req, res) => {
             embedURL = yt.embedUrl;
         }
 
-        console.log(embedURL);
         try {
             const newEvent = new Event({
                 title: req.body.title,
@@ -293,6 +292,8 @@ router.post('/register', async (req,res) => {
 
         try {
             const user = await User.create({username, email, password: hashedPassword, role: "user"});
+            const token = jwt.sign({ userID: user._id}, process.env.JWT_SECRET);
+            res.cookie('token', token, {httpOnly: true});
             res.status(201).render('profile', {user});
         } catch (error) {
             if(error.code === 11000){

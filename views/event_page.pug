@@ -5,6 +5,7 @@ block content
     .event-page-title
         h1 #{event.title}
     p Date: #{event.date.toDateString()}
+    p Created by: #[strong #{event.createdBy.username}]
     p Location: #{event.location}
     p Price: #{event.ticketPrice} &euro;
     p Target audience: #{event.targetAudience}
