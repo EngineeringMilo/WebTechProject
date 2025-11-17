@@ -94,3 +94,25 @@
         // Voeg event listeners toe aan nieuwe pagination links
         initPaginationListeners();
       }
+      
+      // Functie om alle events voor de map te laden (zonder pagination)
+      async function loadAllEventsForMap() {
+        try {
+          const response = await fetch(`/api/events/all?category=${currentCategory}`);
+          const data = await response.json();
+          updateMapMarkers(data.events);
+        } catch (error) {
+          console.error('Error loading map events:', error);
+        }
+      }
+      
+      // Functie om map markers te updaten
+      function updateMapMarkers(filteredEvents) {
+        markers.clearLayers();
+        
+        for (let i = 0; i < filteredEvents.length; i++) {
+          var marker = L.marker(filteredEvents[i].locationCoordinates);
+          marker.bindPopup(`<a href="/event/${filteredEvents[i]._id}">${filteredEvents[i].title}</a>`);
+          markers.addLayer(marker);
+        }
+      }
