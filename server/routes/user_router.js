@@ -104,7 +104,6 @@ router.get('/profile', authMiddleware, async (req, res) => {
         }
         const events = await Event.find({createdBy: req.user._id});//fetch all events created by logged in user
         const regs = await Registration.find({ userId: req.user._id }).populate("eventId");
-        console.log(regs)
         await req.user.populate('joinedEvents');
         res.render('profile', {user: req.user, events, joinedEvents: req.user.joinedEvents, regs});
     } catch (error) {
