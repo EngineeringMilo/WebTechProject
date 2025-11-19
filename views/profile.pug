@@ -5,6 +5,8 @@ block content
         h2 Hey #{user.username}
         if user.isApproved
             a.btn(href="/createevent") Create an event
+        else
+            p(style= "color: red") Approval status: pending
     p Email: #{user.email}
     if !events || events.length === 0 
         if user.isApproved
