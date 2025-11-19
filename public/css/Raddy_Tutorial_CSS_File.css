@@ -523,6 +523,19 @@ input[type="datetime-local"]{
     transition: transform 0.2s;
 }
 
+.open-preferences-minimal {
+    font-family: 'Poppins', sans-serif;
+    text-decoration: underline;
+    background-color: var(--white);
+    color: var(--black);
+    font-size: var(--font-size-base);
+    /*background-image: url("/img/img-noise-361x370.png"); */
+    margin: 0;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
 .open-preferences:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
