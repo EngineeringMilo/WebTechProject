@@ -8,14 +8,17 @@ block content
         else
             p(style= "color: red") Approval status: pending
     p Email: #{user.email}
+
+    h2.events__heading All your events
     if !events || events.length === 0 
         if user.isApproved
             p You don't have any events yet. Consider making one on the #[a(href="/createevent") create] page.
         else
             p Your account hasn't been approved yet. An admin will approve it ASAP and you'll be able to create an event.
+
     else
         section.events
-            h2.events__heading All your events
+            
 
             ul.admin-posts
                 each event in events
@@ -32,17 +35,7 @@ block content
                             form(action=`/delete-event/${event._id}?_method=DELETE`, method = "POST")
                                 input.btn(type="submit", value="Delete event")
             
-            h2.events__heading Joined events
-            ul.event-ul
-                each event in joinedEvents
-                    li
-                        a(href=`/event/${event._id}`, class='')
-                            span #{event.title}
-                            span.event-list__description #{event.description.length > 80 ? event.description.substring(0, 80) + '...' : event.description}
-                            .share-section
-                                span.event-list__date Date:
-                                span.event-list__date #{event.date.toDateString()}
-                                
+                 
             .nav-pagination
             if prevPage != null
                 a.pagination(href='/?page=' + prevPage) &lt; View older posts
@@ -50,3 +43,17 @@ block content
                 span.pagination-placeholder
             if nextPage != null
                 a.pagination(href='/?page=' + nextPage) View newer posts &gt;
+
+    if !regs
+        p You don't have any joined events 
+    else 
+        h2.events__heading Joined events
+            ul.event-ul
+                each reg in regs
+                    li
+                        a(href=`/event/${reg.eventId._id}`, class='')
+                            span #{reg.eventId.title}
+                            span.event-list__description #{reg.eventId.description.length > 80 ? reg.eventId.description.substring(0, 80) + '...' : reg.eventId.description}
+                            .share-section
+                                span.event-list__date Date:
+                                span.event-list__date #{reg.eventId.date.toDateString()}
