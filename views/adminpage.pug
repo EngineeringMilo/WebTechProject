@@ -31,5 +31,6 @@ block content
                     //- span.event-list__date #{event.date.toDateString()}
                     
                 .admin-post-controls
+                    a.btn(href=`/edit-user/${user._id}`) View / edit user
                     form(action=`/approve-user/${user._id}?_method=POST`, method = "POST")
                         input.btn(type="submit", value="Approve user")
