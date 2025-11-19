@@ -80,7 +80,8 @@ router.get('/profile', authMiddleware, async (req, res) => {
     try {
         if(req.user.role === "admin"){
             const users = await User.find({role: 'user'});
-            return res.render('adminpage', {user: req.user, users})
+            const toBeApprovedUsers = await User.find({isApproved: false})
+            return res.render('adminpage', {user: req.user, users, toBeApprovedUsers})
         }
         const events = await Event.find({createdBy: req.user._id});//fetch all events created by logged in user
         await req.user.populate('joinedEvents');
@@ -291,7 +292,7 @@ router.post('/register', async (req,res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         try {
-            const user = await User.create({username, email, password: hashedPassword, role: "user"});
+            const user = await User.create({username, email, password: hashedPassword});
             const token = jwt.sign({ userID: user._id}, process.env.JWT_SECRET);
             res.cookie('token', token, {httpOnly: true});
             res.status(201).render('profile', {user});

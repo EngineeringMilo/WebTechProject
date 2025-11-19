@@ -29,15 +29,16 @@ const EventSchema = new Schema({
   },
   targetAudience: {
     type: String,
-    required: false
+    required: true
   },
   ticketPrice: {
     type: String,
-    required: false
+    required: true
   },
   promoURL: {
     type: String,
-    required: false
+    required: false,
+    default: null
   }
 }, {
   timestamps: true // Automatic creation of createdAt & updatedAt
