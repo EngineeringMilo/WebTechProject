@@ -77,8 +77,16 @@ router.delete('/delete-user/:id', authAdminMiddleware, async (req, res) => {
   // First delete all the users events
   await Event.deleteMany({ createdBy: userId });
   
-  // Verwijder gebruiker
+  // Delete user
   await User.findByIdAndDelete(userId);
+  
+  res.redirect('/profile');
+});
+
+router.post('/approve-user/:id', authAdminMiddleware, async (req, res) => {
+  const userId = req.params.id;
+ 
+  await User.findByIdAndUpdate(userId, {isApproved: true});
   
   res.redirect('/profile');
 });

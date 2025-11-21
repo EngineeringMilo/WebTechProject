@@ -8,6 +8,7 @@ const express = require('express');
 const router = express.Router();
 const Event = require('../models/Event');
 const User = require('../models/User');
+const Registration = require('../models/Registration');
 const jwt = require('jsonwebtoken');
 
 /*
@@ -31,6 +32,7 @@ router.get('', async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+
   try {
       //Logic to display a certain amount of pages on the homepage
       let perPage = 2;
@@ -81,41 +83,28 @@ const eventAuthMiddleware = async (req,res,next) => {
 router.get('/event/:id', eventAuthMiddleware, async (req, res) => {
   try { 
     const event = await Event.findById(req.params.id).populate('createdBy');
+    
+    const registrationCount = await Registration.countDocuments({ 
+      eventId: req.params.id 
+    });
+    let registration = null;
+    if(req.user){
+      registration = await Registration.findOne({
+      eventId: req.params.id,
+      userId: user._id
+      }).populate("userId");
+    }
+
     res.render('event_page', { 
       user: req.user, 
-      event});
+      event,
+      registrationCount,
+      registration});
   } catch (error) {
     console.error(error);
   }
 });
 
-router.post('/event/:id/join', eventAuthMiddleware, async (req, res) => {
-  if (!req.user) {
-    return res.redirect('/login');
-  }
-
-  try {
-   const event = await Event.findById(req.params.id);
-    if (!event) return res.status(404).send('Event not found');
-
-    const user = req.user;
-    const index = user.joinedEvents.indexOf(event._id);
-
-    if (index === -1) {
-      // Not yet joined
-      user.joinedEvents.push(event._id);
-    } else {
-      // Leave
-      user.joinedEvents.splice(index, 1);
-    }
-
-    await user.save();
-    res.redirect(`/event/${event._id}`);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Something went wrong.');
-  }
-});
 
 //Cookie page route
 router.get('/cookie', (req, res) => {

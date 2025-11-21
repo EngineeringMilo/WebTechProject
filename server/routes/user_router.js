@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const Event = require('../models/Event');
 const User = require('../models/User');
+const Registration = require('../models/Registration');
 const bcrypt = require('bcrypt');//to hash passwords
 const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser');
@@ -25,6 +26,24 @@ const authMiddleware = async (req,res,next) => {
     } catch (error) {
         return res.render('fourOone');   
     }
+}
+
+// This is an extra check just to see if the user is logged in and if so to add a 'join' button to the event page
+const eventAuthMiddleware = async (req,res,next) => {
+  const token = req.cookies.token;
+  if (!token) {
+    req.user = null;
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.userID);
+    user = req.user;
+  } catch (err) {
+    req.user = null; // guest mode
+  }
+  next();
 }
 
 function parseYouTubeUrl(url) {
@@ -80,11 +99,13 @@ router.get('/profile', authMiddleware, async (req, res) => {
     try {
         if(req.user.role === "admin"){
             const users = await User.find({role: 'user'});
-            return res.render('adminpage', {user: req.user, users})
+            const toBeApprovedUsers = await User.find({isApproved: false})
+            return res.render('adminpage', {user: req.user, users, toBeApprovedUsers})
         }
         const events = await Event.find({createdBy: req.user._id});//fetch all events created by logged in user
+        const regs = await Registration.find({ userId: req.user._id }).populate("eventId");
         await req.user.populate('joinedEvents');
-        res.render('profile', {user: req.user, events, joinedEvents: req.user.joinedEvents});
+        res.render('profile', {user: req.user, events, joinedEvents: req.user.joinedEvents, regs});
     } catch (error) {
         console.log(error);
     }
@@ -166,6 +187,35 @@ router.post('/createevent', authMiddleware, async (req, res) => {
         console.log(error);
     }
 })
+
+router.post('/event/:id/join', eventAuthMiddleware, async (req, res) => {
+  if (!req.user) {
+    return res.redirect('/login');
+  }
+
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).send('Event not found');
+    const existingRegistration = await Registration.findOne({
+        userId: req.user.id,
+        eventId: req.params.id,
+    });
+    const user = req.user;
+    if (existingRegistration){
+        await Registration.findByIdAndDelete(existingRegistration.id)
+    }
+    else if(existingRegistration === null){
+        await Registration.create({
+            userId: req.user.id,
+            eventId: req.params.id,
+        });
+    }
+    res.redirect(`/event/${event._id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Something went wrong.');
+  }
+});
 
 
 /**
@@ -291,7 +341,7 @@ router.post('/register', async (req,res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         try {
-            const user = await User.create({username, email, password: hashedPassword, role: "user"});
+            const user = await User.create({username, email, password: hashedPassword});
             const token = jwt.sign({ userID: user._id}, process.env.JWT_SECRET);
             res.cookie('token', token, {httpOnly: true});
             res.status(201).render('profile', {user});
