@@ -98,14 +98,13 @@ router.get('/register', async (req, res) => {
 router.get('/profile', authMiddleware, async (req, res) => {
     try {
         if(req.user.role === "admin"){
-            const users = await User.find({role: 'user'});
+            const users = await User.find({role: 'user', isApproved: true});
             const toBeApprovedUsers = await User.find({isApproved: false})
             return res.render('adminpage', {user: req.user, users, toBeApprovedUsers})
         }
         const events = await Event.find({createdBy: req.user._id});//fetch all events created by logged in user
         const regs = await Registration.find({ userId: req.user._id }).populate("eventId");
-        await req.user.populate('joinedEvents');
-        res.render('profile', {user: req.user, events, joinedEvents: req.user.joinedEvents, regs});
+        res.render('profile', {user: req.user, events, regs});
     } catch (error) {
         console.log(error);
     }
