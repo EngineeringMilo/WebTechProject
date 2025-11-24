@@ -29,16 +29,17 @@ block content
               .share-section
                 span.event-list__date Date:
                 span.event-list__date #{event.date.toDateString()}
+    
+      .nav-pagination(data-current-page=current data-total-pages=Math.ceil(count/2))
+        if nextPage != null
+          a.pagination(href='#' data-page=nextPage) &lt; View earlier events
+        else
+          span.pagination-placeholder
+        if prevPage != null
+          a.pagination(href='#' data-page=prevPage) View later events &gt;
     else
       p No events yet. Make your very own on the #[a(href="/profile") Profile] page!
 
-    .nav-pagination(data-current-page=current data-total-pages=Math.ceil(count/2))
-      if nextPage != null
-        a.pagination(href='#' data-page=nextPage) &lt; View earlier events
-      else
-        span.pagination-placeholder
-      if prevPage != null
-        a.pagination(href='#' data-page=prevPage) View later events &gt;
 
     br
     hr
