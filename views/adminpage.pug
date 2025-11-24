@@ -4,7 +4,9 @@ block content
     .admin-title
         h2 Welcome back, #{user.username}
         a.btn(href="/createevent") Create an event
-    p Email: #{user.email}
+    .admin-title
+        p Email: #{user.email}
+        a.btn(href="/logout") Logout
 
     h2 List of users
     ul.admin-posts
