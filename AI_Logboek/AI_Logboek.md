@@ -2361,7 +2361,7 @@ ik heb een website waar mensen evenementen kunnen maken en kunnen joinen kan je 
 
 ## Antwoord
 
-![alt text](image.png)
+![alt text](/AI_Logboek/image.png)
 
 ## Vraag
 
