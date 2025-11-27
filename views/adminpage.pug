@@ -4,16 +4,16 @@ block content
     .admin-title
         h2 Welcome back, #{user.username}
         a.btn(href="/createevent") Create an event
-    p Email: #{user.email}
+    .admin-title
+        p Email: #{user.email}
+        a.btn(href="/logout") Logout
 
     h2 List of users
     ul.admin-posts
         each user in users
             li
-                //- To do link this 'link' to the correct event so when a user clicks on it
-                //- They are led to the event page
                 span #{user.username}
-                    //- span.event-list__description #{event.description}
+                span.event-list__description #{user.email}
                     //- span.event-list__date #{event.date.toDateString()}
                     
                 .admin-post-controls
@@ -27,7 +27,7 @@ block content
                 //- To do link this 'link' to the correct event so when a user clicks on it
                 //- They are led to the event page
                 span #{user.username}
-                    //- span.event-list__description #{event.description}
+                span.event-list__description #{user.email}
                     //- span.event-list__date #{event.date.toDateString()}
                     
                 .admin-post-controls

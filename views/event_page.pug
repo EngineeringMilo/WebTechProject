@@ -32,7 +32,7 @@ block content
 
             // Join / Leave Button
             if user != null
-                if event.createdBy != user.id
+                if event.createdBy != user.id && user.isApproved
                     form(action=`/event/${event._id}/join`, method="POST")
                         if (!registration)
                             input.btn(type="submit", value="Join event")

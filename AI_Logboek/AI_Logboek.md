@@ -707,6 +707,1671 @@ Als je wilt, kan ik dit model uitschrijven in **Mongoose-schema’s (Node.js)**,
 
 Wil je dat ik dat doe?
 
+## Vraag:
+
+in een tutorial die ik volg gebruiken ze ejs en daar zetten ze expressLayouts = require('express-layouts') maar ik wil pug gebruiken hoe zet ik die dan op om mijn templating engine te zijn? ik heb pug al geinstalleerd
+
+## Antwoord:
+
+Goede vraag 👍
+
+Als je **Pug** wil gebruiken in plaats van **EJS**, dan heb je geen `express-ejs-layouts` nodig — die module is specifiek voor EJS.
+Pug heeft namelijk **zijn eigen systeem voor layouts en partials** (met `extends` en `include`).
+
+Hier is hoe je het instelt in **Express** ⬇️
+
+---
+
+### 📦 Stap 1 – Installeer Pug (heb je al gedaan)
+
+```bash
+npm install pug
+```
+
+---
+
+### ⚙️ Stap 2 – Stel Pug in als templating engine in Express
+
+In je `app.js` of `server.js`:
+
+```js
+const express = require('express');
+const path = require('path');
+const app = express();
+
+// Zeg tegen Express dat je Pug gebruikt
+app.set('view engine', 'pug');
+
+// Geef de map aan waar je views staan
+app.set('views', path.join(__dirname, 'views'));
+```
+
+---
+
+### 🧱 Stap 3 – Gebruik Pug templates
+
+Bijvoorbeeld een bestand:
+`views/layout.pug`
+
+```pug
+doctype html
+html
+  head
+    title Mijn site
+  body
+    block content
+```
+
+En een pagina die dat layout gebruikt:
+`views/index.pug`
+
+```pug
+extends layout
+
+block content
+  h1 Welkom!
+  p Dit is mijn eerste Pug-pagina.
+```
+
+---
+
+### 🚀 Stap 4 – Renderen in Express
+
+In je route:
+
+```js
+app.get('/', (req, res) => {
+  res.render('index');
+});
+```
+
+---
+
+### ✅ Samenvatting
+
+Je **vervangt** dus:
+
+```js
+const expressLayouts = require('express-ejs-layouts');
+app.use(expressLayouts);
+app.set('view engine', 'ejs');
+```
+
+door:
+
+```js
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+```
+
+En je gebruikt `extends` + `block` in je `.pug` bestanden om layouts te maken — geen aparte layout-module meer nodig.
+
+---
+
+Wil je dat ik je een klein voorbeeld geef van hoe je een **layout met navbar en content** maakt in Pug (zoals bij express-ejs-layouts)?
+
+## Vraag: 
+
+hoe kan ik styling toevoegen aan die pug bestanden?
+
+## Antwoord:
+
+Ah, styling in Pug kan op een paar manieren, afhankelijk van hoe je je CSS wilt gebruiken. Ik geef je de meest gebruikelijke methodes:
+
+---
+
+## 1️⃣ Externe CSS-bestanden (aanbevolen)
+
+Dit is zoals je normaal in HTML zou doen.
+
+**Stap 1 – Maak een map voor je CSS**
+
+```bash
+project/
+├─ public/
+│  └─ css/
+│     └─ style.css
+├─ views/
+│  ├─ layout.pug
+│  └─ index.pug
+```
+
+**Stap 2 – Stel Express in om de `public` map te serveren**
+
+```js
+const express = require('express');
+const path = require('path');
+const app = express();
+
+app.use(express.static(path.join(__dirname, 'public')));
+```
+
+**Stap 3 – Link je CSS in je layout.pug**
+
+```pug
+doctype html
+html
+  head
+    title Mijn site
+    link(rel='stylesheet', href='/css/style.css')
+  body
+    block content
+```
+
+**Stap 4 – Schrijf je CSS**
+`public/css/style.css`
+
+```css
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+h1 {
+  color: #0077cc;
+}
+```
+
+---
+
+## 2️⃣ Inline CSS in Pug (minder aan te raden)
+
+Je kan ook direct CSS in `<style>` zetten:
+
+```pug
+doctype html
+html
+  head
+    title Inline CSS
+    style.
+      body {
+        background-color: #eee;
+        font-family: Arial, sans-serif;
+      }
+      h1 { color: red; }
+  body
+    h1 Hallo met inline CSS!
+```
+
+> Let op het **`.`** na `style` — dat betekent dat alles wat volgt als plain text (CSS) wordt geïnterpreteerd.
+
+---
+
+## 3️⃣ Inline styles op een element (minimaal gebruik)
+
+```pug
+h1(style="color: red; font-size: 24px") Hallo
+```
+
+---
+
+💡 Tip: Voor grotere projecten is **methode 1 (externe CSS)** het schoonst en makkelijkst te onderhouden.
+
+---
+
+Als je wilt, kan ik je laten zien hoe je **Bootstrap of TailwindCSS** toevoegt aan Pug zodat je meteen mooie styling hebt zonder veel zelf te schrijven. Wil je dat?
+
+
+## Vraag:
+
+router.get('/', (res, req) => {
+    const locals = {
+        title: "NodeJS Event organizer",
+        description: "Cool page"
+    }
+    const someData = {
+        data: "Some input data"
+    }
+    req.render('index', {locals,someData});
+})
+
+extends layout
+
+block content
+  h1 Welcome to my #{locals.title}
+  h2 this is some data #{someData.data}
+  p This is my first pug page
+
+de data komt er wel op maar de titel verdwijnt op het moment dat ik {} gebruik in mijn req.render dus ik heb geen idee wat er gebeurt
+
+## Antwoord:
+
+Ah, ik zie meteen wat er misgaat 😅
+
+Je **argumenten van `router.get` zijn verkeerd omgedraaid** en daardoor werkt `req.render` niet zoals verwacht. In Express is de volgorde altijd **`(req, res)`**, niet `(res, req)`!
+
+Daarnaast gebruik je `req.render`, maar **renderen doe je via `res.render`**, niet `req.render`.
+
+---
+
+### Correcte versie van je route:
+
+```js
+router.get('/', (req, res) => {
+    const locals = {
+        title: "NodeJS Event organizer",
+        description: "Cool page"
+    };
+    const someData = {
+        data: "Some input data"
+    };
+    res.render('index', { locals, someData });
+});
+```
+
+---
+
+### Pug bestand blijft hetzelfde:
+
+```pug
+extends layout
+
+block content
+  h1 Welcome to my #{locals.title}
+  h2 this is some data #{someData.data}
+  p This is my first pug page
+```
+
+---
+
+✅ Belangrijkste punten:
+
+1. **Router parameters:** `(req, res)`, niet andersom.
+2. **Renderen doe je via `res.render`, niet `req.render`.`**
+3. Objecten die je meegeeft aan Pug worden direct beschikbaar als variabelen in de template.
+
+---
+
+Als je wilt, kan ik je laten zien hoe je die `locals` **direct beschikbaar maakt voor alle templates**, zodat je ze niet telkens bij `res.render` hoeft mee te geven. Dat maakt je code veel netter. Wil je dat?
+
+## Vraag:
+
+mijn titel wordt nog steeds niet ingeladen
+
+## Antwoord: 
+
+Ah, nu snap ik het probleem waarschijnlijk helemaal 🙂
+
+Het heeft te maken met **hoe je Pug `locals` gebruikt**. In Pug kun je de variabelen die je via `res.render` meegeeft **direct gebruiken**, je hoeft ze niet in een object `locals` te stoppen. Als je dat wél doet, moet je in Pug erdoorheen “navigeren” (`locals.title`). Maar vaak gaat dat mis of wordt overschreven door Pug zelf.
+
+### Twee oplossingen:
+
+---
+
+## **Oplossing 1: Variabelen direct meegeven**
+
+```js
+router.get('/', (req, res) => {
+    const title = "NodeJS Event organizer";
+    const description = "Cool page";
+    const someData = { data: "Some input data" };
+
+    res.render('index', { title, description, someData });
+});
+```
+
+En in je Pug:
+
+```pug
+extends layout
+
+block content
+  h1 Welcome to my #{title}
+  h2 This is some data #{someData.data}
+  p This is my first pug page
+```
+
+> Dit is de **meest gebruikte manier**. Geen `locals` object nodig.
+
+---
+
+## **Oplossing 2: locals object behouden**
+
+Als je toch een `locals` object wilt gebruiken:
+
+```js
+router.get('/', (req, res) => {
+    const locals = {
+        title: "NodeJS Event organizer",
+        description: "Cool page"
+    };
+    const someData = { data: "Some input data" };
+
+    res.render('index', { locals, someData });
+});
+```
+
+Dan moet je in Pug **wel `locals.title` gebruiken**, zoals je eerder deed:
+
+```pug
+extends layout
+
+block content
+  h1 Welcome to my #{locals.title}
+  h2 This is some data #{someData.data}
+  p This is my first pug page
+```
+
+⚠️ Tip: Als je bij deze methode de titel nog steeds niet ziet, kan het zijn dat je **layout.pug** ergens ook `title` instelt of overschrijft.
+
+Bijvoorbeeld:
+
+```pug
+head
+  title My site
+```
+
+Moet je vervangen door:
+
+```pug
+head
+  title= locals ? locals.title : "Default title"
+```
+
+---
+
+💡 Conclusie: De makkelijkste en veiligste manier is **variabelen direct meegeven** zonder `locals` object.
+
+Als je wilt, kan ik een klein voorbeeld van **layout + index.pug** laten zien dat werkt met dynamische titels en content, zodat je het meteen goed hebt. Wil je dat?
+
+
+## Vraag: 
+
+is locals al een ding van pug miss?
+
+## Antwoord:
+
+Ja! Dat klopt helemaal 😅
+
+In **Express + Pug** is `locals` namelijk **al een ingebouwde term** die door Express intern wordt gebruikt om alle variabelen door te geven aan de templates.
+
+Dus als je zelf een variabele `locals` noemt en die ook meegeeft aan `res.render({ locals })`, **overschrijf je dat interne object**, wat kan leiden tot rare dingen zoals dat je `title` niet verschijnt.
+
+---
+
+### Wat dit betekent voor jou:
+
+* Vermijd `locals` als naam voor je eigen object.
+* Geef gewoon je variabelen direct mee:
+
+```js
+router.get('/', (req, res) => {
+    const title = "NodeJS Event organizer";
+    const description = "Cool page";
+    const someData = { data: "Some input data" };
+
+    res.render('index', { title, description, someData });
+});
+```
+
+En in Pug:
+
+```pug
+h1 Welcome to my #{title}
+h2 This is some data #{someData.data}
+```
+
+---
+
+Wil je dat ik laat zien hoe je **dynamische titels** via een layout doet, zodat elke pagina automatisch zijn eigen titel kan hebben zonder steeds `title` te moeten meegeven?
+
+## Vraag:
+
+ik wil in pug mijn script.js file toevoegen en die defer, kan je uitleggen wat het keyword defer doet en hoe ik het in mijn header krijg van mijn pug file want nu krijg ik als gerenderd ding defer ="" terug ipv gwn defer in mijn script tage
+
+## Antwoord:
+
+Ah ja, dit is een klein Pug-/HTML-dingetje dat vaak verwarrend is 😅
+
+---
+
+### 1️⃣ Wat doet `defer` in een `<script>` tag?
+
+Het `defer` attribuut zorgt ervoor dat je JavaScript **niet direct wordt uitgevoerd tijdens het parsen van de HTML**, maar pas **nadat de hele HTML-pagina is geladen**.
+
+* Handig voor scripts die **DOM-elementen nodig hebben**.
+* Scripts met `defer` behouden hun volgorde als je er meerdere hebt.
+* Het script wordt **parallel geladen**, maar **pas uitgevoerd na parsing**.
+
+Voorbeeld in pure HTML:
+
+```html
+<script src="/js/script.js" defer></script>
+```
+
+---
+
+### 2️⃣ Hoe schrijf je dit in Pug?
+
+In Pug kun je **boolean attributes** gebruiken, maar het verschil is subtiel:
+
+#### Fout die je waarschijnlijk deed:
+
+```pug
+script(src="/js/script.js", defer="")
+```
+
+→ Dit genereert `<script src="/js/script.js" defer=""></script>`
+HTML accepteert dat wel, maar het ziet er niet netjes uit en sommige linters of browsers kunnen hierop commentaar geven.
+
+#### Correcte manier in Pug:
+
+```pug
+script(src="/js/script.js", defer)
+```
+
+**Let op:**
+
+* Je geeft gewoon **de naam van het attribuut** zonder `= ""`.
+* Pug interpreteert dit als een boolean attribute en zet gewoon `defer` in de HTML.
+
+---
+
+### 3️⃣ Voorbeeld in je `layout.pug` header:
+
+```pug
+head
+  title #{title}
+  link(rel='stylesheet', href='/css/style.css')
+  script(src='/js/script.js', defer)
+```
+
+Resultaat in HTML:
+
+```html
+<head>
+  <title>Mijn titel</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/script.js" defer></script>
+</head>
+```
+
+---
+
+💡 Tip: `defer` werkt alleen bij **externe scripts** (`src`), niet bij inline scripts. Voor inline scripts kun je `<script>` gewoon onderaan je body zetten.
+
+---
+
+Als je wilt, kan ik je laten zien hoe je **alle scripts netjes onderaan de body** plaatst in Pug, met defer, zodat je layout overzichtelijk blijft. Wil je dat?
+
+## Vraag:
+
+nope dat werkt niet
+
+## Antwoord:
+
+Ah, nu snap ik het probleem beter 😅
+
+Pug heeft een **specifieke manier om boolean attributes te schrijven**. Soms, afhankelijk van je Pug-versie of instellingen, kan `script(src='/js/script.js', defer)` alsnog `defer=""` renderen in plaats van alleen `defer`.
+
+De manier die wél altijd correct werkt is door **het attribuut als boolean true mee te geven** met **`true`**:
+
+```pug
+script(src='/js/script.js', defer=true)
+```
+
+Dit genereert netjes:
+
+```html
+<script src="/js/script.js" defer></script>
+```
+
+---
+
+### Samengevat:
+
+| Pug                                       | Resultaat HTML                                                  |
+| ----------------------------------------- | --------------------------------------------------------------- |
+| `script(src='/js/script.js', defer)`      | `<script src="/js/script.js" defer=""></script>` (kan gebeuren) |
+| `script(src='/js/script.js', defer=true)` | `<script src="/js/script.js" defer></script>` ✅                 |
+
+---
+
+Wil je dat ik een **complete layout.pug voorbeeld** maak met **CSS + JS + defer** zodat je het meteen correct kan gebruiken?
+
+## Vraag:
+
+mijn package.json en package-lock.json mag ik naar github pushen right?
+
+## Antwoord:
+
+Ja, in de meeste gevallen **mag en moet je beide bestanden pushen naar GitHub** ✅
+
+Hier is waarom:
+
+---
+
+### 1️⃣ `package.json`
+
+* Bevat **metadata over je project**, zoals naam, versie, scripts, dependencies en engines.
+* Essentieel voor anderen (of jezelf op een andere machine) om je project te installeren met:
+
+```bash
+npm install
+```
+
+* **Moet altijd** in de repository staan.
+
+---
+
+### 2️⃣ `package-lock.json`
+
+* Bevat **exacte versies van alle geïnstalleerde packages**, inclusief dependencies van dependencies.
+* Zorgt ervoor dat iedereen die jouw project clonet **exact dezelfde versies** gebruikt, wat bugs voorkomt.
+* **Aanbevolen** om mee te pushen bij applicaties (Node.js-projecten).
+
+⚠️ Uitzondering: bij libraries of packages die door anderen worden geïnstalleerd, kan `package-lock.json` soms worden genegeerd. Maar voor apps (zoals een Express-project) altijd pushen.
+
+---
+
+### 3️⃣ Wat je niet moet pushen
+
+* `node_modules/` → te groot en wordt gereconstrueerd via `npm install`.
+* `.env` bestanden → bevatten vaak gevoelige API keys of wachtwoorden.
+
+---
+
+💡 Tip: voeg een `.gitignore` toe zoals:
+
+```
+node_modules/
+.env
+```
+
+---
+
+Kortom: **ja, push `package.json` en `package-lock.json` naar GitHub**, maar **niet `node_modules`**.
+
+Als je wilt, kan ik een **voorbeeld `.gitignore`** voor een Node.js + Express + Pug project maken dat goed werkt. Wil je dat?
+
+
+## Vraag:
+
+<svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7.79167 13.4583C10.9213 13.4583 13.4583 10.9213 13.4583 7.79167C13.4583 4.66205 10.9213 2.125 7.79167 2.125C4.66205 2.125 2.125 4.66205 2.125 7.79167C2.125 10.9213 4.66205 13.4583 7.79167 13.4583Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14.875 14.875L11.7938 11.7938" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+
+kan je deze svg omzetten zodat ik het kan gebruiken in mijn code van pug
+
+## Antwoord:
+
+Ja! In Pug kun je SVG’s **direct inline plaatsen**, maar de syntax is een beetje anders: je gebruikt **inspringing** in plaats van tags met `< >`. Attributen gaan via **`attribuutnaam=“waarde”`** of gewoon `attribuutnaam` voor booleans.
+
+Hier is jouw SVG omgezet naar Pug:
+
+```pug
+svg(width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg")
+  path(d="M7.79167 13.4583C10.9213 13.4583 13.4583 10.9213 13.4583 7.79167C13.4583 4.66205 10.9213 2.125 7.79167 2.125C4.66205 2.125 2.125 4.66205 2.125 7.79167C2.125 10.9213 4.66205 13.4583 7.79167 13.4583Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
+  path(d="M14.875 14.875L11.7938 11.7938" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
+```
+
+---
+
+### Tips:
+
+1. **Inspringing is belangrijk**: alles wat binnen `<svg>` staat, moet één niveau ingesprongen zijn.
+2. Je kunt ook **klassen of id’s toevoegen**:
+
+```pug
+svg(class="icon-search" width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg")
+```
+
+3. Pug zet het netjes om naar HTML, dus je kunt het gewoon in je template plaatsen.
+
+---
+
+Als je wilt, kan ik deze SVG ook **omzetten naar een Pug mixin**, zodat je hem overal makkelijk kunt hergebruiken met één regel code. Wil je dat?
+
+## Vraag:
+ik zag iemand in ejs date().getFullYear gebruiken hoe doe ik zoiets in pug?
+
+## Antwoord:
+
+Ah, ja! In **EJS** kun je gewoon JavaScript gebruiken in je templates, zoals `new Date().getFullYear()`. In **Pug** kan dat ook, want Pug ondersteunt **inline JavaScript**.
+
+Hier zijn de manieren:
+
+---
+
+### 1️⃣ Inline JavaScript in een element
+
+```pug
+footer
+  p &copy; #{new Date().getFullYear()} Mijn Website
+```
+
+* `#{...}` is de **interpolatie** in Pug.
+* Alles binnen de `{}` is gewoon JavaScript.
+
+Dit genereert bijvoorbeeld:
+
+```html
+<footer>
+  <p>© 2025 Mijn Website</p>
+</footer>
+```
+
+---
+
+### 2️⃣ JavaScript buiten interpolatie (meer complex)
+
+Als je meerdere variabelen wilt berekenen:
+
+```pug
+- const year = new Date().getFullYear()
+
+footer
+  p &copy; #{year} Mijn Website
+```
+
+* Het streepje `-` vertelt Pug dat het **JavaScript code is**, geen output.
+* Daarna kun je de variabele gewoon interpoleren.
+
+---
+
+💡 Tip: Dit is handig voor footers of copyright notices die altijd het **huidige jaar** tonen.
+
+---
+
+Als je wilt, kan ik je laten zien hoe je dit **in je layout.pug automatisch toevoegt**, zodat alle pagina’s het jaar correct tonen zonder dat je het in elke route hoeft te renderen. Wil je dat?
+
+
+## Vraag:
+
+<ul class="article-ul">
+    <% data.forEach(post => { %>
+      <li>
+        <a href="/post/<%= post._id %>">
+          <span><%= post.title %></span>
+          <span class="article-list__date"><%= post.createdAt.toDateString() %></span>
+        </a>
+      </li>
+    <% }) %>
+  </ul>
+
+kan je dit omzetten naar pug
+
+## Antwoord:
+
+Ja! Dat kan. In Pug gebruik je **`each`** in plaats van `forEach`, en de interpolatie gaat via `#{}` in plaats van `<%= %>`.
+
+Hier is jouw EJS-code omgezet naar Pug:
+
+```pug
+ul.article-ul
+  each post in data
+    li
+      a(href=`/post/${post._id}`)
+        span #{post.title}
+        span.article-list__date #{post.createdAt.toDateString()}
+```
+
+---
+
+### Uitleg:
+
+1. **`ul.article-ul`** → Pug shorthand voor `<ul class="article-ul">`.
+2. **`each post in data`** → vervangt `data.forEach(post => ...)`.
+3. **`a(href=\`/post/${post._id}`)`** → backticks en `${}` gebruiken voor variabelen in attributen.
+4. **`#{...}`** → voor interpolatie van variabelen in de inhoud van een element.
+
+---
+
+Als je wilt, kan ik ook laten zien hoe je dit **netjes met een mixin** maakt, zodat je makkelijk meerdere lijsten van posts kunt renderen in Pug. Wil je dat?
+
+
+## Vraag:
+
+   ul.article_ul
+      li: a(href='https://www.google.com', target = 'blank', class = "")
+            span Event Title
+            span.article-list__date Event Date
+
+dit is de code die ik heb maar mijn css wordt hier niet op toegepast
+
+## Antwoord:
+
+Ah, ik zie het probleem 😅
+
+In Pug werkt **class-namen en id’s iets anders**. De manier waarop je `class=""` toevoegt kan ertoe leiden dat de class **leeg wordt gezet**, waardoor je CSS niet werkt. Ook let Pug op inspringing en shorthand.
+
+Hier is hoe je het correct doet:
+
+---
+
+### Correcte versie van jouw code:
+
+```pug
+ul.article-ul
+  li
+    a.article-link(href='https://www.google.com', target='_blank')
+      span Event Title
+      span.article-list__date Event Date
+```
+
+---
+
+### Uitleg van de aanpassingen:
+
+1. **`ul.article-ul`** → gebruik een `-` in plaats van `_` als je CSS class zo heet, maar in HTML wordt `_` gewoon ondersteund. Zorg dat je CSS selector overeenkomt met de class.
+2. **`a.article-link`** → shorthand voor `<a class="article-link">`.
+
+   * Zo hoef je **niet** `class=""` apart te schrijven.
+3. **`target='_blank'`** → underscore, correct HTML attribuut.
+4. **Inspringing** → span-tags moeten één niveau ingesprongen zijn **binnen de `a`**.
+
+---
+
+### Tip:
+
+Als je CSS nog steeds niet werkt:
+
+* Controleer dat je **CSS-bestand correct gelinkt is** in je `layout.pug`. Bijvoorbeeld:
+
+```pug
+link(rel='stylesheet', href='/css/style.css')
+```
+
+* Controleer de classnamen in je CSS en Pug **komen exact overeen**, inclusief underscores of koppeltekens (`article-ul` vs `article_ul`).
+
+---
+
+Als je wilt, kan ik je Pug-code herschrijven zodat **alle classnames exact matchen met je originele EJS-code** en meteen compatibel zijn met je bestaande CSS. Wil je dat?
+
+## Vraag:
+
+.event-ul li {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.event-ul li:not(:last-child) {
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.event-ul li:hover {
+  color: var(--black);
+}
+
+.event-ul:hover li {
+  color: var(--gray);
+}
+
+.event-ul:hover li:hover {
+  color: var(--black);
+}
+
+hoezo werkt mijn hover niet want ik wil dat alles wat lichter wordt en dat hetgeen waar ik over hover zwart wordt
+
+ul.event-ul
+      li: a(href='#', target = 'blank', class = "")
+            span Event Title
+            span.event-list__date Event Date
+      li: a(href='#', target = 'blank', class = "")
+            span Event Title
+            span.event-list__date Event Date
+      li: a(href='#', target = 'blank', class = "")
+            span Event Title
+            span.event-list__date Event Date
+
+dit is mijn pug ul 
+
+want als ik het met dit
+
+.event-ul li {
+  font-size: 24px;
+  cursor: pointer;
+  transition: filter 0.1s;
+}
+
+.event-ul li:not(:last-child) {
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.event-ul li:hover {
+  filter: none;
+}
+
+.event-ul:hover li {
+  filter: blur(3px);
+}
+
+.event-ul:hover li:hover {
+  filter: none;
+}
+
+doe dan heb ik wel gewoon een blur effect ik wil ipv dat blur effect degene die niet gehoverd worden lichter maken
+
+## Antwoord:
+
+Ah, nu snap ik het 😄
+
+Het probleem zit in **hoe CSS de hover van parent + child combineert**. In je eerste poging gebruik je `color` op de `<li>`, maar in je Pug staat de tekst **binnen de `<a>` en `<span>`**, dus de kleur verandert niet omdat de `<li>` zelf geen tekst bevat. CSS erft **niet altijd automatisch `color` naar kinderen van `<li>` als er een `<a>` omheen zit**, vooral als je browser de `<a>` een eigen kleur geeft.
+
+---
+
+### De oplossing: hover toepassen op de `<a>` in plaats van `<li>`
+
+#### Pug (clean):
+
+```pug
+ul.event-ul
+  li
+    a(href='#')
+      span Event Title
+      span.event-list__date Event Date
+  li
+    a(href='#')
+      span Event Title
+      span.event-list__date Event Date
+  li
+    a(href='#')
+      span Event Title
+      span.event-list__date Event Date
+```
+
+---
+
+#### CSS voor “alle niet-hovered lichter, hovered zwart”:
+
+```css
+.event-ul a {
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--black);
+  text-decoration: none;
+  transition: color 0.2s, opacity 0.2s;
+}
+
+/* standaard: alles is zwart */
+.event-ul a {
+  color: var(--black);
+}
+
+/* als je over de UL hover, alle links lichter */
+.event-ul:hover a {
+  color: var(--gray); /* lichte kleur voor niet-gehoverde */
+}
+
+/* hovered link wordt zwart */
+.event-ul a:hover {
+  color: var(--black);
+}
+```
+
+✅ Werkt omdat:
+
+* We hoveren **op de `<a>`** in plaats van `<li>`
+* Wanneer de gebruiker over de hele `<ul>` hovert, worden alle `<a>` lichter (`:hover` van parent `<ul>`).
+* Het element waar de muis echt op staat (`<a>:hover`) wordt weer zwart.
+
+---
+
+💡 Tip: Je kunt ook **opacity** gebruiken in plaats van kleur, voor een subtielere fade:
+
+```css
+.event-ul:hover a {
+  opacity: 0.5;
+}
+
+.event-ul a:hover {
+  opacity: 1;
+}
+```
+
+---
+
+Als je wilt, kan ik je volledige **Pug + CSS snippet maken** die exact dit effect geeft, inclusief overgang en border tussen items. Wil je dat?
+
+
+## Vraag:
+
+kan je voor mijn event een schema vezinnen voor in mongodb? ik wil graag een title van het event een beschrijving en een locatie als minimum ik wil verder ook weten welke gebruiker het event heeft aangemaakt
+
+## Antwoord
+
+Zeker 👍 laten we een degelijk **Mongoose-schema** voor jouw *Event* model opzetten, met de velden die je noemt.
+
+Hier is een goed uitgangspunt:
+
+---
+
+### 📘 **Event Schema (Mongoose)**
+
+```js
+const mongoose = require('mongoose');
+
+const eventSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+    trim: true, // haalt extra spaties weg
+  },
+  description: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  location: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User', // verwijst naar het User-model
+    required: true,
+  },
+  date: {
+    type: Date,
+    default: Date.now, // eventueel veld voor wanneer het event plaatsvindt of is aangemaakt
+  }
+}, {
+  timestamps: true // voegt automatisch createdAt & updatedAt toe
+});
+
+module.exports = mongoose.model('Event', eventSchema);
+```
+
+---
+
+### 🔍 Uitleg van de velden:
+
+| Veld            | Type              | Uitleg                                               |
+| --------------- | ----------------- | ---------------------------------------------------- |
+| **title**       | String            | Naam van het event                                   |
+| **description** | String            | Beschrijving van het event                           |
+| **location**    | String            | Waar het event plaatsvindt                           |
+| **createdBy**   | ObjectId → `User` | Verwijzing naar de gebruiker die het event aanmaakte |
+| **date**        | Date              | Kan gebruikt worden als eventdatum of timestamp      |
+| **timestamps**  | automatisch       | Voegt `createdAt` en `updatedAt` toe                 |
+
+---
+
+### ⚙️ Relatie met User
+
+Je hebt dan ook een **User model**, bijvoorbeeld:
+
+```js
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true }
+});
+
+module.exports = mongoose.model('User', userSchema);
+```
+
+Zo kun je later makkelijk alle events van een gebruiker ophalen:
+
+```js
+Event.find({ createdBy: userId }).populate('createdBy');
+```
+
+---
+
+Wil je dat ik er ook meteen een **route en controllerfunctie** bij schrijf (zoals `POST /events` om een nieuw event aan te maken met de ingelogde gebruiker)? Dat maakt het direct werkbaar met je Express backend.
+
+## Vraag
+
+Post.insertMany([
+    {
+      title: "Building APIs with Node.js",
+      body: "Learn how to use Node.js to build RESTful APIs using frameworks like Express.js"
+    },
+    {
+      title: "Deployment of Node.js applications",
+      body: "Understand the different ways to deploy your Node.js applications, including on-premises, cloud, and container environments..."
+    },
+    {
+      title: "Authentication and Authorization in Node.js",
+      body: "Learn how to add authentication and authorization to your Node.js web applications using Passport.js or other authentication libraries."
+    },
+    {
+      title: "Understand how to work with MongoDB and Mongoose",
+      body: "Understand how to work with MongoDB and Mongoose, an Object Data Modeling (ODM) library, in Node.js applications."
+    },
+    {
+      title: "build real-time, event-driven applications in Node.js",
+      body: "Socket.io: Learn how to use Socket.io to build real-time, event-driven applications in Node.js."
+    },
+    {
+      title: "Discover how to use Express.js",
+      body: "Discover how to use Express.js, a popular Node.js web framework, to build web applications."
+    },
+    {
+      title: "Asynchronous Programming with Node.js",
+      body: "Asynchronous Programming with Node.js: Explore the asynchronous nature of Node.js and how it allows for non-blocking I/O operations."
+    },
+    {
+      title: "Learn the basics of Node.js and its architecture",
+      body: "Learn the basics of Node.js and its architecture, how it works, and why it is popular among developers."
+    },
+    {
+      title: "NodeJs Limiting Network Traffic",
+      body: "Learn how to limit netowrk traffic."
+    },
+    {
+      title: "Learn Morgan - HTTP Request logger for NodeJs",
+      body: "Learn Morgan."
+    },
+  ])
+
+kan je iets in deze zin geven zodat ik mijn database kan testen geef er ook 10 zoals ik nu heb gegeven maar dan met alle veldjes dat we daarnet in event hebben gemaakt
+
+## Antwoord
+
+Zeker 👍 hieronder krijg je 10 voorbeeld-**events** die je kunt gebruiken om je MongoDB-database te testen.
+Ze volgen precies het schema dat we hierboven hebben opgesteld (`title`, `description`, `location`, `createdBy`, `date`).
+
+Ik vul `createdBy` hier even met fictieve ObjectIds — die kun je straks vervangen door echte gebruikers-IDs uit je `User`-collectie.
+
+---
+
+### 📘 Voorbeeld: `Event.insertMany([...])`
+
+```js
+Event.insertMany([
+  {
+    title: "JavaScript Meetup 2025",
+    description: "Een gezellige avond vol met JavaScript talks en live demos over moderne webontwikkeling.",
+    location: "Gent, België",
+    createdBy: "6713fa7eac1205f8743e9a01",
+    date: new Date("2025-11-15T19:00:00")
+  },
+  {
+    title: "Introductie tot MongoDB en Mongoose",
+    description: "Leer hoe je data opslaat, opvraagt en valideert met MongoDB en Mongoose in Node.js.",
+    location: "Antwerpen, België",
+    createdBy: "6713fa7eac1205f8743e9a02",
+    date: new Date("2025-12-02T18:30:00")
+  },
+  {
+    title: "Cybersecurity Essentials Workshop",
+    description: "Hands-on workshop over beveiliging van webapplicaties en basisprincipes van ethical hacking.",
+    location: "Brussel, België",
+    createdBy: "6713fa7eac1205f8743e9a03",
+    date: new Date("2025-10-25T10:00:00")
+  },
+  {
+    title: "AI for Beginners",
+    description: "Een inleidende sessie over kunstmatige intelligentie en hoe je met eenvoudige Python-modellen kunt starten.",
+    location: "Leuven, België",
+    createdBy: "6713fa7eac1205f8743e9a04",
+    date: new Date("2025-11-10T17:00:00")
+  },
+  {
+    title: "Node.js Deep Dive",
+    description: "Verdiep je in Node.js internals, event loop, streams en performance optimalisatie.",
+    location: "Rotterdam, Nederland",
+    createdBy: "6713fa7eac1205f8743e9a05",
+    date: new Date("2025-11-20T09:00:00")
+  },
+  {
+    title: "Frontend Framework Battle",
+    description: "React, Vue of Svelte? Ontdek de verschillen en bouw een kleine app in elk framework.",
+    location: "Amsterdam, Nederland",
+    createdBy: "6713fa7eac1205f8743e9a06",
+    date: new Date("2025-12-05T14:00:00")
+  },
+  {
+    title: "Cloud Deployment met Docker",
+    description: "Leer hoe je Node.js-applicaties verpakt in containers en uitrolt naar de cloud.",
+    location: "Brugge, België",
+    createdBy: "6713fa7eac1205f8743e9a07",
+    date: new Date("2025-11-25T16:00:00")
+  },
+  {
+    title: "Hackathon Weekend 2025",
+    description: "48 uur non-stop coderen, prototyping en pizza! Vorm teams en bouw iets indrukwekkends.",
+    location: "Gent, België",
+    createdBy: "6713fa7eac1205f8743e9a08",
+    date: new Date("2025-12-12T09:00:00")
+  },
+  {
+    title: "Introductie tot DevOps",
+    description: "Een overzicht van CI/CD pipelines, monitoring en automatisering in moderne softwareprojecten.",
+    location: "Hasselt, België",
+    createdBy: "6713fa7eac1205f8743e9a09",
+    date: new Date("2026-01-08T13:30:00")
+  },
+  {
+    title: "Open Source Contribution Day",
+    description: "Leer hoe je kan bijdragen aan open source projecten en een impact kan maken in de community.",
+    location: "Mechelen, België",
+    createdBy: "6713fa7eac1205f8743e9a10",
+    date: new Date("2025-12-19T10:00:00")
+  }
+]);
+```
+
+---
+
+### ✅ Opmerkingen
+
+* Vervang de `createdBy`-waarden door echte `_id`’s uit je `User`-collectie (ObjectIds).
+* De `date` is optioneel, maar handig om te tonen in je UI of sortering.
+* Omdat je schema `timestamps: true` heeft, worden `createdAt` en `updatedAt` automatisch toegevoegd.
+
+---
+
+Wil je dat ik er ook een **route en controllerfunctie** bij geef (bijv. `GET /events` om deze events te fetchen en in je Pug-view te tonen)?
+
+
+## Vraag:
+
+en hoe laat ik nu een user een event creeeren?
+
+## Antwoord:
+
+Heel goede vraag 👌 — dat is precies wat je in een realistische Node.js/MongoDB-app wilt doen.
+Laten we dit stap voor stap opbouwen, zodat je duidelijk begrijpt **hoe een gebruiker een event kan aanmaken**.
+
+---
+
+## 🧩 1️⃣ Je Mongoose schema’s
+
+Je hebt minstens twee modellen nodig:
+
+### 🔹 `User` model (bijv. `models/User.js`)
+
+```js
+const mongoose = require('mongoose');
+
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true }
+}, { timestamps: true });
+
+module.exports = mongoose.model('User', userSchema);
+```
+
+---
+
+### 🔹 `Event` model (bijv. `models/Event.js`)
+
+```js
+const mongoose = require('mongoose');
+
+const eventSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  location: { type: String, required: true },
+  date: { type: Date, default: Date.now },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
+}, { timestamps: true });
+
+module.exports = mongoose.model('Event', eventSchema);
+```
+
+---
+
+## ⚙️ 2️⃣ De route om een event aan te maken
+
+In je `routes/events.js`:
+
+```js
+const express = require('express');
+const router = express.Router();
+const Event = require('../models/Event');
+
+// (optioneel: middleware om te checken of de user is ingelogd)
+const { requireLogin } = require('../middleware/auth');
+
+router.post('/create', requireLogin, async (req, res) => {
+  try {
+    const { title, description, location, date } = req.body;
+
+    // req.user._id komt van je login middleware (bv. via Passport of JWT)
+    const event = await Event.create({
+      title,
+      description,
+      location,
+      date,
+      createdBy: req.user._id
+    });
+
+    res.redirect('/events'); // of res.json(event);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Er ging iets mis bij het aanmaken van het event.');
+  }
+});
+
+module.exports = router;
+```
+
+---
+
+## 🔐 3️⃣ Middleware om te weten wie de user is
+
+Als je bijvoorbeeld Passport.js gebruikt:
+
+```js
+function requireLogin(req, res, next) {
+  if (!req.isAuthenticated()) {
+    return res.redirect('/login');
+  }
+  next();
+}
+```
+
+Of als je JWT gebruikt:
+
+```js
+function requireLogin(req, res, next) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'Not authorized' });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch {
+    res.status(401).json({ message: 'Invalid token' });
+  }
+}
+```
+
+---
+
+## 🧾 4️⃣ Formulier in je Pug-view (frontend)
+
+Bijvoorbeeld in `views/create_event.pug`:
+
+```pug
+extends layout
+
+block content
+  h1 Nieuw Event Aanmaken
+  form(action="/events/create" method="POST")
+    label(for="title") Titel
+    input(type="text" name="title" required)
+
+    label(for="description") Beschrijving
+    textarea(name="description" required)
+
+    label(for="location") Locatie
+    input(type="text" name="location" required)
+
+    label(for="date") Datum
+    input(type="datetime-local" name="date")
+
+    button(type="submit") Maak Event
+```
+
+---
+
+## 🧠 5️⃣ Wat er dan gebeurt
+
+Wanneer een gebruiker dit formulier invult:
+
+1. De `POST /events/create`-route wordt aangeroepen.
+2. `requireLogin` checkt of de gebruiker is ingelogd.
+3. De `req.user._id` wordt gebruikt als `createdBy` in de database.
+4. Een nieuw `Event` document wordt aangemaakt in MongoDB.
+5. Je kunt daarna doorsturen naar `/events` of een succesmelding tonen.
+
+---
+
+Wil je dat ik je help de **login/auth** flow (met Passport of JWT) op te zetten zodat `req.user` effectief gevuld wordt bij het aanmaken van een event? Dat is de cruciale stap om dit te laten werken.
+
+## Vraag:
+
+hoe kan ik nu al mijn events aflopen om ze te tonen?
+
+## Antwoord:
+
+Perfecte vervolgstap 🔥
+Laten we ervoor zorgen dat je **alle events kunt ophalen uit MongoDB** en **weergeven in je Pug-template**.
+
+---
+
+## 🧩 1️⃣ Route maken om alle events op te halen
+
+Maak (of breid) je `routes/events.js` uit met deze route:
+
+```js
+const express = require('express');
+const router = express.Router();
+const Event = require('../models/Event');
+
+// 📅 Alle events ophalen
+router.get('/', async (req, res) => {
+  try {
+    // Alle events ophalen en de gebruiker (creator) erbij "populaten"
+    const events = await Event.find().populate('createdBy', 'username email').sort({ createdAt: -1 });
+
+    res.render('events', {
+      title: 'Alle Events',
+      events
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Er ging iets mis bij het ophalen van de events.');
+  }
+});
+
+module.exports = router;
+```
+
+✅ **Wat dit doet:**
+
+* Haalt alle events op uit MongoDB.
+* Sorteert ze van nieuw → oud.
+* “Populeert” de `createdBy` referentie zodat je de username kunt tonen.
+* Rendert de `views/events.pug` pagina met een variabele `events`.
+
+---
+
+## 🧾 2️⃣ Pug-template voor de lijst van events
+
+Maak een bestand `views/events.pug`:
+
+```pug
+extends layout
+
+block content
+  h1 #{title}
+
+  if events.length
+    ul.event-ul
+      each event in events
+        li
+          a(href=`/events/${event._id}`)
+            span.event-title #{event.title}
+            span.event-location #{event.location}
+            span.event-date #{event.date.toDateString()}
+            span.event-user Gemaakt door #{event.createdBy?.username || 'Onbekend'}
+  else
+    p Er zijn nog geen events aangemaakt.
+```
+
+💡 Tip:
+
+* `each event in events` = een for-loop in Pug.
+* Je kunt velden gebruiken zoals `event.title`, `event.location`, enz.
+* `event.createdBy?.username` toont de naam van de user die het heeft aangemaakt (werkt dankzij `.populate()`).
+
+---
+
+## ⚙️ 3️⃣ Route koppelen in `app.js`
+
+In je hoofdserverbestand (`app.js` of `server.js`), zorg dat deze regel er is:
+
+```js
+const eventsRouter = require('./routes/events');
+app.use('/events', eventsRouter);
+```
+
+---
+
+## ✅ 4️⃣ Testen
+
+1. Start je server (`npm start` of `nodemon app.js`).
+2. Ga naar [http://localhost:3000/events](http://localhost:3000/events).
+3. Je zou nu een lijst moeten zien met al je aangemaakte events.
+
+---
+
+## 💅 Bonus: kleine stylingtip
+
+Als je je CSS al hebt gekoppeld, kun je in `style.css` bijvoorbeeld toevoegen:
+
+```css
+.event-ul {
+  list-style: none;
+  padding: 0;
+}
+
+.event-ul li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.event-title {
+  font-weight: bold;
+}
+
+.event-date, .event-location, .event-user {
+  display: block;
+  font-size: 0.9em;
+  color: gray;
+}
+```
+
+---
+
+Wil je ook dat ik toon **hoe je een detailpagina** maakt voor elk event (dus `/events/:id`), zodat je kunt doorklikken op een event in de lijst? Dat is de logische volgende stap.
+
+
+## Vraag:
+
+try {
+        const data = await Event.find();
+        res.render('index', data);
+    } catch (error) {
+        console.log(error);   
+    }
+
+dit is in mijn router en dit is mijn code van pug
+
+f events.length
+      ul.event-ul
+        each event in data
+          li: a(href='#', target = 'blank', class = "")
+                span #{event.title}
+                span.event-list__description #{event.description}
+                span.event-list__date #{event.date}
+    else
+      p Er zijn nog geen events
+
+## Antwoord
+
+Goede poging 💪 je zit er héél dicht bij — er is alleen een kleine **mismatch tussen wat je naar je Pug-template stuurt** en hoe je het daar probeert te gebruiken.
+
+---
+
+## 🧩 Het probleem
+
+Je doet nu:
+
+```js
+res.render('index', data);
+```
+
+👉 Dat stuurt **de volledige Mongoose-array direct** naar Pug,
+zonder een naam eraan te geven.
+
+In je Pug-bestand probeer je echter te doen:
+
+```pug
+if events.length
+  each event in data
+```
+
+Dat klopt niet, want:
+
+* `data` bestaat niet in Pug (je hebt `res.render('index', data)` gedaan)
+* En `events` ook niet (want die heb je niet gedefinieerd in je render).
+
+---
+
+## ✅ De juiste manier
+
+Verander je route naar:
+
+```js
+try {
+  const events = await Event.find();
+  res.render('index', { events }); // we geven een object met 'events' door
+} catch (error) {
+  console.log(error);   
+}
+```
+
+---
+
+## 🧾 En dan je Pug-bestand:
+
+```pug
+if events.length
+  ul.event-ul
+    each event in events
+      li
+        a(href='#', target='blank', class='')
+          span #{event.title}
+          span.event-list__description #{event.description}
+          span.event-list__date #{event.date.toDateString()}
+else
+  p Er zijn nog geen events
+```
+
+---
+
+## 💡 Samengevat
+
+| Fout                        | Oplossing                         |
+| --------------------------- | --------------------------------- |
+| `res.render('index', data)` | `res.render('index', { events })` |
+| `each event in data`        | `each event in events`            |
+
+---
+
+Wil je dat ik je ook toon hoe je dit uitbreidt naar een **detailpagina per event** (zodat je op het event kunt klikken om de beschrijving volledig te zien)? Dat sluit mooi aan op wat je nu hebt.
+
+
+## Vraag
+
+hoe kan ik naar een page routen met een specifiek id? stel ik wil doen req.post('/post/even.tid') hoe moet ik die event.id dan dynamisch invullen?
+
+## Antwoord
+
+Topvraag 🔥 — dit is een **essentieel concept** in Express: *dynamische routes* met parameters (zoals een event-ID).
+
+Laten we dit stap voor stap doen 👇
+
+---
+
+## 🧩 1️⃣ De route met een dynamisch ID
+
+In je `routes/events.js`:
+
+```js
+const express = require('express');
+const router = express.Router();
+const Event = require('../models/Event');
+
+// 📄 Detailpagina van één event
+router.get('/:id', async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id).populate('createdBy', 'username email');
+
+    if (!event) {
+      return res.status(404).send('Event niet gevonden');
+    }
+
+    res.render('event_detail', { title: event.title, event });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Er ging iets mis bij het ophalen van het event.');
+  }
+});
+
+module.exports = router;
+```
+
+✅ Wat gebeurt hier:
+
+* `/:id` maakt een **dynamische routeparameter** (`req.params.id`)
+* `Event.findById()` haalt het juiste document op
+* `populate()` toont meteen de userinfo als je dat wilt
+* `res.render()` stuurt het naar een view `event_detail.pug`
+
+---
+
+## 🧾 2️⃣ Je link in de Pug-lijst
+
+In je `index.pug` of `events.pug`, verander dit:
+
+```pug
+each event in events
+  li
+    a(href=`/events/${event._id}`) 
+      span #{event.title}
+      span.event-list__description #{event.description}
+      span.event-list__date #{event.date.toDateString()}
+```
+
+💡 Let op:
+
+* Gebruik **backticks** ` ` en **string interpolatie** `${}`
+* Dit genereert bijv. een link naar `/events/670dacf8a62f40a1234abcd5`
+
+---
+
+## 🧱 3️⃣ De Pug-pagina voor het event-detail
+
+Maak `views/event_detail.pug`:
+
+```pug
+extends layout
+
+block content
+  h1 #{event.title}
+  p Beschrijving: #{event.description}
+  p Locatie: #{event.location}
+  p Datum: #{event.date.toDateString()}
+  if event.createdBy
+    p Aangemaakt door: #{event.createdBy.username}
+  else
+    p Aangemaakt door: Onbekend
+
+  a(href="/events") ← Terug naar overzicht
+```
+
+---
+
+## ⚙️ 4️⃣ In je `app.js`
+
+Zorg dat je de router goed koppelt:
+
+```js
+const eventsRouter = require('./routes/events');
+app.use('/events', eventsRouter);
+```
+
+---
+
+## ✅ 5️⃣ Resultaat
+
+* `/events` toont alle events.
+* Klik op één event → `/events/670dacf8a62f40a1234abcd5`
+* Je krijgt een detailpagina van dat specifieke event.
+
+---
+
+Wil je dat ik er ook bij toon hoe je via een **POST-formulier** (bijv. “Wijzig event”) naar `/events/:id/edit` of `/events/:id/delete` kunt gaan? Dat is meestal de volgende stap na detailweergave.
+
+## Vraag:
+
+ik heb een website waar mensen evenementen kunnen maken en kunnen joinen kan je me een leuk simpel speels logo genereren? De naam is EventLink graag speels, simpele kleuren
+
+## Antwoord
+
+![alt text](/AI_Logboek/image.png)
+
+## Vraag
+
+Ja maar ik wil dat het gewoon de naam is en daar iets tof meedoen en ook png dus dat er geen achtergrond is
+
+## Antwoord:
+
+![alt text](/public/img/EventLinkLogo.png)
+
+
 ## vraag:
 
 hoe kan een gebruiker dan deelnemen aan meerder events met dit ontwerp?

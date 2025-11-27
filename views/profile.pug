@@ -7,7 +7,9 @@ block content
             a.btn(href="/createevent") Create an event
         else
             p(style= "color: red") Approval status: pending
-    p Email: #{user.email}
+    .admin-title
+        p Email: #{user.email}
+        a.btn(href="/logout") Logout
 
     h2.events__heading All your events
     if !events || events.length === 0 
@@ -44,16 +46,16 @@ block content
             if nextPage != null
                 a.pagination(href='/?page=' + nextPage) View newer posts &gt;
 
+    h2.events__heading Joined events 
     if !regs
         p You don't have any joined events 
     else 
-        h2.events__heading Joined events
-            ul.event-ul
-                each reg in regs
-                    li
-                        a(href=`/event/${reg.eventId._id}`, class='')
-                            span #{reg.eventId.title}
-                            span.event-list__description #{reg.eventId.description.length > 80 ? reg.eventId.description.substring(0, 80) + '...' : reg.eventId.description}
-                            .share-section
-                                span.event-list__date Date:
-                                span.event-list__date #{reg.eventId.date.toDateString()}
+        ul.event-ul
+            each reg in regs
+                li
+                    a(href=`/event/${reg.eventId._id}`, class='')
+                        span #{reg.eventId.title}
+                        span.event-list__description #{reg.eventId.description.length > 80 ? reg.eventId.description.substring(0, 80) + '...' : reg.eventId.description}
+                        .share-section
+                            span.event-list__date Date:
+                            span.event-list__date #{reg.eventId.date.toDateString()}

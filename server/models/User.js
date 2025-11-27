@@ -23,10 +23,7 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
     default: false,
-  },
-  joinedEvents: [{ 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Event'}]
+  }
 });
 
 module.exports = mongoose.model('User', UserSchema);
