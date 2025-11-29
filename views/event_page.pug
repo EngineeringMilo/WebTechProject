@@ -2,7 +2,7 @@ extends layout
 block content
 
     .event-page
-        .event-card
+        .event-card-page
             h1.event-title #{event.title}
 
             .event-info
@@ -80,7 +80,7 @@ block content
             a.reddit() Reddit
             a.print() Print
             a.email(data-title=`Check out this cool event ${event.title}!`) Email
-            a.whatsapp(data-title=`Check out this cool event ${event.title}!`, data-text='I found this cool event on www.eventlink.com and I want to invite you!') Whatsapp
+            a.whatsapp(data-title=`Check out this cool event ${event.title}!`, data-text='I found this cool event on https://webtechproject-yegr.onrender.com and I want to invite you!') Whatsapp
 
 
     
