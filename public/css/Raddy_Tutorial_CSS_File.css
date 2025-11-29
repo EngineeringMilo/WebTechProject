@@ -637,6 +637,241 @@ input[type="datetime-local"]{
     border-radius: 8px;
 }
 
+/* ============================= */
+/* 👤 DASHBOARD - LIGHT MODE    */
+/* ============================= */
+
+.dashboard {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+
+.profile-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  gap: 2rem;
+}
+
+.profile-info h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  color: var(--black);
+}
+
+.profile-info .email {
+  color: var(--gray);
+  margin-top: 0.4rem;
+}
+
+.status {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.status.approved {
+  background: #d8f3e7;
+  color: #0c7a4b;
+}
+
+.status.pending {
+  background: #fff3cd;
+  color: #8a6d1d;
+}
+
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ff8a00, #ffb347);
+  color: #000;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: #e6e6e6;
+  color: var(--black);
+  padding: 12px 18px;
+  border-radius: 12px;
+  text-decoration: none;
+}
+
+/* ===== DASHBOARD SECTIONS ===== */
+
+.section {
+  margin-top: 3rem;
+}
+
+.section-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+/* ===== EVENT GRID ===== */
+
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.event-card {
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  transition: 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.event-card:hover {
+  transform: translateY(-4px);
+}
+
+.event-link {
+  text-decoration: none;
+  color: var(--black);
+}
+
+.event-link h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.event-card .description {
+  color: var(--gray);
+  font-size: 0.95rem;
+}
+
+.event-card .date {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--gray);
+}
+
+.card-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-small {
+  background: var(--black);
+  padding: 6px 14px;
+  border-radius: 8px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.btn-small.danger {
+  background: #a52c2c;
+}
+
+/* ===== EMPTY STATE ===== */
+
+.empty-state {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 14px;
+  text-align: center;
+  color: var(--gray);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+}
+
+/* From Uiverse.io by Lealdos */ 
+.Btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 45px;
+  height: 45px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition-duration: 0.3s;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+  background-color: RGB(29, 185, 84);
+}
+
+/* plus sign */
+.sign {
+  width: 100%;
+  transition-duration: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sign svg {
+  width: 18px;
+}
+
+.sign svg path {
+  fill: black;
+}
+/* text */
+.text {
+  position: absolute;
+  right: 0%;
+  width: 0%;
+  opacity: 0;
+  color: black;
+  font-size: 1.2em;
+  font-weight: 600;
+  transition-duration: 0.3s;
+}
+/* hover effect on button width */
+.Btn:hover {
+  width: 125px;
+  border-radius: 40px;
+  transition-duration: 0.3s;
+}
+
+.Btn:hover .sign {
+  width: 10%;
+  transition-duration: 0.3s;
+  padding-left: 20px;
+}
+/* hover effect button's text */
+.Btn:hover .text {
+  opacity: 1;
+  width: 70%;
+  transition-duration: 0.3s;
+}
+/* button click effect*/
+.Btn:active {
+  transform: translate(2px, 2px);
+}
+
+
+
+
 
 /* ============================= */
 /* 📱 RESPONSIVE DESIGN          */
@@ -885,6 +1120,20 @@ input[type="datetime-local"]{
     grid-area: button;
     justify-content: center;
   }
+
+  .profile-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .event-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 /* ====================================== */
@@ -971,7 +1220,7 @@ body {
 }
 
 /* --- Cards --- */
-.event-card,
+.event-card-page,
 .promo-card,
 .description-card {
   background: #2a2a2a;
@@ -1052,5 +1301,47 @@ body {
   line-height: 1.6;
   color: #ddd;
 }
+
+/* ============================= */
+/* 👤 DASHBOARD - DARK MODE     */
+/* ============================= */
+
+.profile-card,
+.event-card,
+.empty-state {
+  background: #2a2a2a;
+  color: #f5f5f5;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.event-card .description,
+.event-card .date,
+.profile-info .email {
+  color: #bdbdbd;
+}
+
+.btn-secondary {
+  background: #3a3a3a;
+  color: white;
+}
+
+.status.approved {
+  background: #1f8f4a;
+  color: white;
+}
+
+.status.pending {
+  background: #806000;
+  color: white;
+}
+
+.btn-small {
+  background: #444;
+}
+
+.btn-small.danger {
+  background: #8f1f1f;
+}
+
 
 }

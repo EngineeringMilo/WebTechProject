@@ -30,7 +30,11 @@ block content
         input(type="number", placeholder="There is no ticket price given for your event.", name="ticketPrice",min="0", step="0.01",value=`${event.ticketPrice}`)
 
         label(for="promoURL") Upload a youtube URL to your promotion video (optional)
-        input(type="url", placeholder="Enter youtube URL", name="promoURL", value=`${event.promoURL}`)
+        if event.promoURL != null
+            input(type="url", placeholder="Enter youtube URL", name="promoURL", value=`${event.promoURL}`)
+        else
+            input(type="url", placeholder="Enter youtube URL", name="promoURL")
+            
 
         label(for="description") #[strong Description of your event]
         textarea(name="description", placeholder="Update the description of your event" cols="50", rows="10") #{event.description}

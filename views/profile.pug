@@ -1,61 +1,64 @@
-extends userlayout 
+extend userlayout
 
-block content 
-    .admin-title
-        h2 Hey #{user.username}
-        if user.isApproved
-            a.btn(href="/createevent") Create an event
-        else
-            p(style= "color: red") Approval status: pending
-    .admin-title
-        p Email: #{user.email}
-        a.btn(href="/logout") Logout
+block content
+    .dashboard
 
-    h2.events__heading All your events
-    if !events || events.length === 0 
-        if user.isApproved
-            p You don't have any events yet. Consider making one on the #[a(href="/createevent") create] page.
-        else
-            p Your account hasn't been approved yet. An admin will approve it ASAP and you'll be able to create an event.
+        .profile-card
+            .profile-info
+                h1 Hey #{user.username}
+                p.email #{user.email}
 
-    else
-        section.events
-            
+                if user.isApproved
+                    span.status.approved ✅ Approved
+                else
+                    span.status.pending ⏳ Pending approval
 
-            ul.admin-posts
-                each event in events
-                    li
-                        //- To do link this 'link' to the correct event so when a user clicks on it
-                        //- They are led to the event page
-                        a(href=`/event/${event._id}`, class='')
-                            span #{event.title} &nearr;
-                            //- span.event-list__description #{event.description}
-                            //- span.event-list__date #{event.date.toDateString()}
-                            
-                        .admin-post-controls
-                            a.btn(href=`/edit-event/${event._id}`) Edit event 
-                            form(action=`/delete-event/${event._id}?_method=DELETE`, method = "POST")
-                                input.btn(type="submit", value="Delete event")
-            
-                 
-            .nav-pagination
-            if prevPage != null
-                a.pagination(href='/?page=' + prevPage) &lt; View older posts
+            .profile-actions
+                if user.isApproved
+                    a.btn-primary(href="/createevent") + Create event
+                //- This button from uiverse was used: https://uiverse.io/Lealdos/fuzzy-lion-82
+                a.Btn(href="/logout")
+                    .sign
+                        svg(viewBox="0 0 512 512")
+                            path(d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z")
+                    .text Logout
+
+        .section
+            h2.section-title All your events
+
+            if !events || events.length === 0 
+                .empty-state
+                    if user.isApproved
+                        p You don't have any events yet.
+                        a.btn-primary(href="/createevent") Create your first event
+                    else
+                        p Your account isn't approved yet.
+
+
             else
-                span.pagination-placeholder
-            if nextPage != null
-                a.pagination(href='/?page=' + nextPage) View newer posts &gt;
+                .event-grid
+                    each event in events
+                        .event-card
+                            a.event-link(href=`/event/${event._id}`)
+                                h3 #{event.title}
+                                p.description #{event.description.length > 80 ? event.description.substring(0, 80) + '...' : event.description}
 
-    h2.events__heading Joined events 
-    if !regs
-        p You don't have any joined events 
-    else 
-        ul.event-ul
-            each reg in regs
-                li
-                    a(href=`/event/${reg.eventId._id}`, class='')
-                        span #{reg.eventId.title}
-                        span.event-list__description #{reg.eventId.description.length > 80 ? reg.eventId.description.substring(0, 80) + '...' : reg.eventId.description}
-                        .share-section
-                            span.event-list__date Date:
-                            span.event-list__date #{reg.eventId.date.toDateString()}
+                            .card-actions
+                                a.btn-small(href=`/edit-event/${event._id}`) Edit
+                                form(action=`/delete-event/${event._id}?_method=DELETE`, method="POST")
+                                    input.btn-small.danger(type="submit", value="Delete")
+
+        .section
+            h2.section-title Joined events 
+
+            if !regs || regs.length === 0
+                .empty-state
+                    p You haven't joined any events yet.
+            else 
+                .event-grid
+                    each reg in regs
+                        .event-card
+                            a.event-link(href=`/event/${reg.eventId._id}`)
+                                h3 #{reg.eventId.title}
+                                p.description #{reg.eventId.description.length > 80 ? reg.eventId.description.substring(0, 80) + '...' : reg.eventId.description}
+                                span.date 📅 #{reg.eventId.date.toDateString()}
