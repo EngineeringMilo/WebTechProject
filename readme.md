@@ -1,57 +1,69 @@
-# This is the repo for EventLink
+# 🎉 **EventLink**
 
-## Used dependencies
+**Your gateway to creating, managing, and exploring events — built with Node.js, Express, and MongoDB.**
+Developed for coursework at **KU Leuven**.
 
-- express 
-- mongoose
-- pug
-- bcrypt
-- connect-mongo
-- cookie-parser
-- dotenv
-- express-session
-- method-override
-- vanilla-cookieconsent
+---
 
-To install you run
+## ✨ **What is EventLink?**
+
+EventLink is a lightweight event-management web app where users can view, create, and interact with events.
+It features secure authentication, clean Pug templates, and smooth session handling — all powered by modern Node.js tools.
+
+---
+
+## 🚀 **Tech Stack & Dependencies**
+
+EventLink relies on a set of powerful tools:
+
+### 📚 **Core Dependencies**
+
+| Dependency                | What it Does                                   |
+| ------------------------- | ---------------------------------------------- |
+| **express**               | Web server framework — the backbone of the app |
+| **mongoose**              | MongoDB data modeling made simple              |
+| **pug**                   | Fast and elegant HTML templating               |
+| **bcrypt**                | Secure password hashing 🔐                     |
+| **connect-mongo**         | Stores sessions inside MongoDB                 |
+| **express-session**       | Keeps users logged in                          |
+| **cookie-parser**         | Reads cookies (very useful!)                   |
+| **dotenv**                | Loads environment variables                    |
+| **method-override**       | Allows PUT/DELETE forms                        |
+| **vanilla-cookieconsent** | GDPR-friendly cookie banner 🇪🇺               |
+
+### 📥 Install all dependencies:
+
+```bash
+npm install express express-session connect-mongo mongoose bcrypt cookie-parser dotenv method-override pug vanilla-cookieconsent
 ```
-npm install express express-session connect-mongo mongoose bcrypt cookie-parser dotenv method-override pug
-vanilla-cookieconsent
-```
 
+---
 
-(In the AI_logboek file you can find more about what all these dependencies do and what they are used for.)
+## 🛠️ **Development Tools**
 
-For development **nodemon** was used to run and test the app.
+During development, the project uses **nodemon** for live-reloading:
 
-so for that you run
-
-```
+```bash
 npm install nodemon --save-dev
 ```
 
-(the --save-dev is so that npm knows it should be saved in the dev folder and not used in devolpment.)
+Nodemon automatically restarts the server whenever you change a file — a lifesaver during coding sessions.
 
-## Running the app
+---
 
-There are 2 ways **If you do not have nodemon installed run:**
+## ▶️ **How to Run the App**
 
-```
+Two ways to launch EventLink:
+
+### **1️⃣ Standard Run (no nodemon)**
+
+```bash
 node app.js
 ```
 
-If you do have it installed , you should run:
+### **2️⃣ Developer Mode (with nodemon)**
 
-```
-npm run dev
-```
-
-To learn more about this read the chapter under here.
-
-
-## Side info about running the app
-
-In package.json you'll see under *scripts* there is a *dev* script that says
+The `package.json` includes this script:
 
 ```json
 "scripts": {
@@ -59,10 +71,48 @@ In package.json you'll see under *scripts* there is a *dev* script that says
 }
 ```
 
-So when you run
+So you can simply run:
 
-```
+```bash
 npm run dev
 ```
 
-This will use the *dev* script run the app so it would be the same as running *nodemon app.js*
+Perfect for active development! 🔄
+
+---
+
+## 📁 **Project Structure**
+
+A typical layout for EventLink:
+
+```
+EventLink/
+│── app.js
+│── package.json
+│── .env
+│── /models
+│── /routes
+│── /views        → Pug templates
+│── /public       → CSS, JS, images
+└── /controllers
+```
+
+---
+
+## 📘 **More Info**
+
+Dive deeper into explanations and design decisions in the **AI_logboek** file.
+
+---
+
+## 👨‍🎓 **Made at KU Leuven**
+
+This project was created as part of a project for a course at **KU Leuven**.
+It showcases skills in:
+
+* Backend development
+* Authentication & security
+* MongoDB + Mongoose
+* Templating with Pug
+* Session handling
+* Clean express architecture
