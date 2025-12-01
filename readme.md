@@ -116,3 +116,6 @@ It showcases skills in:
 * Templating with Pug
 * Session handling
 * Clean express architecture
+
+
+_README.md was generated using AI based on our old README.md to make it more eye-catching._
